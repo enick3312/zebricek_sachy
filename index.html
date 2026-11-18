@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Šachový žebříček</title>
+<meta name="description" content="Pořadí, partie a sezóny našeho šachového žebříčku.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f6f4ef; --card: #ffffff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e4e1da;
+    --win: #2e7d32; --loss: #c62828; --draw: #8e8e93; --season: #d9661a; --chip: #efece5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #151517; --card: #1f1f22; --ink: #f2f2f5; --muted: #9a9aa2; --line: #333338;
+            --win: #5fd068; --loss: #ff6b6b; --draw: #9a9aa2; --chip: #2a2a2e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+         font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  header { padding: 22px 16px 14px;
+           background: linear-gradient(135deg, color-mix(in srgb, var(--season) 30%, transparent), transparent 70%); }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  h1 { margin: 0; font-size: 1.7rem; line-height: 1.2; }
+  .meta { color: var(--muted); margin-top: 4px; font-size: .95rem; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px; border-radius: 999px; font-weight: 600;
+           font-size: .85rem; background: color-mix(in srgb, var(--season) 18%, transparent); color: var(--season); }
+  nav { display: flex; gap: 6px; padding: 10px 16px; position: sticky; top: 0; background: var(--bg); z-index: 5;
+        border-bottom: 1px solid var(--line); }
+  nav a { padding: 7px 14px; border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: .95rem; }
+  nav a.on { background: var(--season); color: #fff; }
+  main { padding: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+       padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  tr:last-child td { border-bottom: 0; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr.click { cursor: pointer; }
+  tr.click:hover td { background: color-mix(in srgb, var(--season) 7%, transparent); }
+  .rank { font-weight: 800; width: 2.2em; }
+  .rank1 { color: var(--season); }
+  .elo { font-weight: 700; }
+  .plus { color: var(--win); font-weight: 600; }
+  .minus { color: var(--loss); font-weight: 600; }
+  .muted { color: var(--muted); }
+  .tag { display: inline-block; font-size: .72rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; margin-left: 6px;
+         background: var(--chip); color: var(--muted); vertical-align: 2px; }
+  .tag.new { background: color-mix(in srgb, var(--season) 18%, transparent); color: var(--season); }
+  .form { display: inline-flex; gap: 3px; vertical-align: middle; }
+  .form i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
+  .w { background: var(--win); } .d { background: var(--draw); } .l { background: var(--loss); }
+  .controls { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;
+              color: var(--muted); font-size: .9rem; margin-bottom: 10px; }
+  .controls label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+  h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  .evening { font-weight: 700; margin: 2px 0 6px; display: flex; justify-content: space-between; gap: 8px; }
+  .game { display: grid; grid-template-columns: 3.2em 1fr auto 1fr; gap: 8px; align-items: center; padding: 7px 0;
+          border-top: 1px solid var(--line); font-size: .95rem; }
+  .game:first-of-type { border-top: 0; }
+  .game .side { display: flex; gap: 6px; align-items: baseline; flex-wrap: wrap; min-width: 0; }
+  .game .side.left { justify-content: flex-end; text-align: right; }
+  .game .res { font-weight: 800; background: var(--chip); padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+  main a { color: inherit; text-decoration: none; font-weight: 600; }
+  main a:hover { text-decoration: underline; }
+  .season { border-left: 5px solid var(--sc, var(--season)); }
+  .season .head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+  .season .title { font-size: 1.1rem; font-weight: 800; }
+  .lead { font-weight: 700; color: var(--sc, var(--season)); }
+  .facts { display: flex; gap: 22px; flex-wrap: wrap; margin: 10px 0 4px; }
+  .facts b { display: block; font-size: 1.25rem; }
+  .facts span { color: var(--muted); font-size: .82rem; }
+  .bigelo { font-size: 2.4rem; font-weight: 800; float: right; line-height: 1; }
+  main a.back { text-decoration: none; color: var(--season); font-weight: 600; display: inline-block; margin-bottom: 10px; }
+  svg.chart { width: 100%; height: auto; display: block; margin-top: 8px; }
+  .ring { width: 1.15em; height: 1.15em; vertical-align: -0.2em; margin-left: 6px; filter: drop-shadow(0 0 3px rgba(255, 190, 40, .55)); }
+  svg.trend { width: 100%; height: auto; display: block; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 10px; }
+  .legend button { font: inherit; font-size: .9rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+                   background: var(--chip); color: var(--ink); border: 1px solid transparent; border-radius: 999px; padding: 4px 10px; }
+  .legend button.on { border-color: var(--ink); }
+  .legend i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  footer { color: var(--muted); font-size: .85rem; text-align: center; padding: 10px 16px 30px; }
+  footer button { font: inherit; color: var(--season); background: none; border: 1px solid var(--line); border-radius: 999px;
+                  padding: 5px 14px; cursor: pointer; margin-top: 8px; }
+  #qr { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: none; align-items: center; justify-content: center; z-index: 10; }
+  #qr .box { background: #fff; color: #111; padding: 20px; border-radius: 16px; text-align: center; max-width: 90vw; }
+  #qr svg { width: 260px; height: 260px; max-width: 75vw; max-height: 75vw; }
+  .hide-sm { }
+  @media (max-width: 620px) {
+    .hide-sm { display: none; }
+    h1 { font-size: 1.4rem; }
+    td, th { padding: 8px 5px; }
+    .game { grid-template-columns: 1fr auto 1fr; }
+    .game .time { display: none; }
+  }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1 id="title">Šachový žebříček</h1>
+  <div class="meta" id="meta">Načítám…</div>
+</div></header>
+<nav class="wrap" id="nav">
+  <a href="#zebricek" data-v="zebricek">Žebříček</a>
+  <a href="#partie" data-v="partie">Partie</a>
+  <a href="#vyvoj" data-v="vyvoj">Vývoj</a>
+  <a href="#sezony" data-v="sezony">Sezóny</a>
+</nav>
+<main class="wrap" id="main"></main>
+<footer class="wrap">
+  <div id="updated"></div>
+  <button id="qrbtn" hidden>QR kód pro sdílení</button>
+</footer>
+<div id="qr"><div class="box"><div id="qrimg"></div><div style="margin-top:8px">Naskenujte a sledujte žebříček</div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
+<script>
+"use strict";
+let D = null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const plural = (n, one, few, many) => n === 1 ? one : (n >= 2 && n <= 4 ? few : many);
+const partie = n => `${n} ${plural(n, "partie", "partie", "partií")}`;
+const signed = n => n > 0 ? `+${n}` : n < 0 ? `−${-n}` : "0";
+const cls = n => n > 0 ? "plus" : n < 0 ? "minus" : "muted";
+const score = x => { const w = Math.floor(x), h = x - w > 0.25; return (w === 0 && h) ? "½" : `${w}${h ? "½" : ""}`; };
+
+const QUARTERS = [
+  { name: "Jaro", emoji: "🌱", color: "#4db04f", span: y => `březen – květen ${y}` },
+  { name: "Léto", emoji: "☀️", color: "#f5ad14", span: y => `červen – srpen ${y}` },
+  { name: "Podzim", emoji: "🍂", color: "#d9661a", span: y => `září – listopad ${y}` },
+  { name: "Zima", emoji: "❄️", color: "#549eeb", span: y => `prosinec ${y} – únor ${y + 1}` },
+];
+const dateLong = d => new Intl.DateTimeFormat("cs-CZ", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(d);
+const dateShort = d => new Intl.DateTimeFormat("cs-CZ", { day: "numeric", month: "numeric", year: "numeric" }).format(d);
+const timeOf = d => new Intl.DateTimeFormat("cs-CZ", { hour: "2-digit", minute: "2-digit" }).format(d);
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+function seasonInfo(key) {
+  const s = D.seasons.find(x => x.key === key) || { key };
+  switch (D.seasonMode) {
+    case "quarterly": {
+      const q = QUARTERS[s.part ?? key % 10], y = s.year ?? Math.floor(key / 10);
+      const name = (s.part ?? key % 10) === 3 ? `${q.name} ${y}/${String((y + 1) % 100).padStart(2, "0")}` : `${q.name} ${y}`;
+      return { name, span: q.span(y), emoji: q.emoji, color: q.color };
+    }
+    case "monthly": {
+      const d = new Date(s.year, (s.part || 1) - 1, 1);
+      return { name: cap(new Intl.DateTimeFormat("cs-CZ", { month: "long", year: "numeric" }).format(d)), span: "", emoji: "📅", color: "#5b84ff" };
+    }
+    case "yearly": return { name: `Rok ${s.year}`, span: "leden – prosinec", emoji: "📅", color: "#5b84ff" };
+    default: return { name: s.name || `Sezóna ${key + 1}`, span: s.start ? `od ${dateShort(new Date(s.start))}` : "", emoji: "🏁", color: "#5b84ff" };
+  }
+}
+
+function relDay(iso) {
+  if (!iso) return "–";
+  const d = new Date(iso), days = Math.floor((Date.now() - d.getTime()) / 86400000);
+  if (days <= 0) return "dnes";
+  if (days === 1) return "včera";
+  if (days < 7) return `před ${days} dny`;
+  if (days < 30) { const w = Math.round(days / 7); return w === 1 ? "před týdnem" : `před ${w} týdny`; }
+  const m = Math.round(days / 30); return m <= 1 ? "před měsícem" : `před ${m} měsíci`;
+}
+
+const player = id => D.players.find(p => p.id === id);
+const playerLink = id => `<a href="#hrac/${encodeURIComponent(id)}">${esc(player(id)?.name ?? "?")}</a>`;
+const formStrip = f => `<span class="form">${f.map(r => `<i class="${r === 1 ? "w" : r === 0 ? "l" : "d"}" title="${r === 1 ? "výhra" : r === 0 ? "prohra" : "remíza"}"></i>`).join("")}</span>`;
+const seasonStat = (p, key) => p.seasons.find(s => s.season === key);
+// Evening of a game: games before 6 am belong to the previous evening.
+const eveningKey = iso => { const d = new Date(new Date(iso).getTime() - 6 * 3600000); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+
+// The leader's ring: a plain golden band.
+const RING = `<svg class="ring" viewBox="0 0 24 24" role="img" aria-label="Prsten moci"><title>Prsten moci – první místo v žebříčku</title>
+  <defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".45" stop-color="#f5c542"/>
+  <stop offset="1" stop-color="#b8860b"/></linearGradient></defs>
+  <ellipse cx="12" cy="13" rx="8.2" ry="7.2" fill="none" stroke="url(#gold)" stroke-width="3.4"/>
+  <path d="M6.2 9.6 A7 6 0 0 1 12 6.6" fill="none" stroke="#fffbe0" stroke-width="1.1" stroke-linecap="round" opacity=".9"/></svg>`;
+
+// ---------- Ladder table ----------
+function viewTable() {
+  const showAll = localStorage.getItem("showInactive") === "1";
+  const visible = D.players.filter(p => showAll || (!p.inactive && !p.retired));
+  const ranked = visible.filter(p => !p.provisional && !p.retired).sort((a, b) => b.rating - a.rating || b.games - a.games || a.name.localeCompare(b.name, "cs"));
+  const rest = visible.filter(p => p.provisional || p.retired).sort((a, b) => b.rating - a.rating || a.name.localeCompare(b.name, "cs"));
+  let rank = 0, prev = null;
+  const rows = ranked.map((p, i) => { if (p.rating !== prev) { rank = i + 1; prev = p.rating; } return { p, rank }; })
+    .concat(rest.map(p => ({ p, rank: null })));
+  const cur = D.currentSeason;
+  const body = rows.map(({ p, rank }) => {
+    const st = seasonStat(p, cur);
+    const tag = p.retired ? `<span class="tag">ukončil</span>` : p.inactive ? `<span class="tag">neaktivní</span>`
+      : p.provisional ? `<span class="tag new" title="Do pořadí se počítá po ${D.settings.provisionalGames} hodnocených partiích">nový</span>` : "";
+    return `<tr class="click" onclick="location.hash='hrac/${encodeURIComponent(p.id)}'">
+      <td class="rank ${rank === 1 ? "rank1" : ""}">${rank ?? "–"}</td>
+      <td>${esc(p.name)}${rank === 1 ? RING : ""}${tag}</td>
+      <td class="n elo">${p.rating}${p.provisional ? "?" : ""}</td>
+      <td class="n ${st ? cls(st.change) : "muted"}">${st ? signed(st.change) : "–"}</td>
+      <td class="n">${p.games}</td>
+      <td class="n hide-sm">${p.wins}–${p.draws}–${p.losses}</td>
+      <td class="hide-sm">${formStrip(p.form)}</td>
+      <td class="hide-sm muted">${relDay(p.lastPlayed)}</td></tr>`;
+  }).join("");
+  const hidden = D.players.filter(p => p.inactive || p.retired).length;
+  return `<div class="controls">
+      <span>Pořadí podle Elo · do pořadí po odehrání ${partie(D.settings.provisionalGames)}</span>
+      ${hidden ? `<label><input type="checkbox" id="showAll" ${showAll ? "checked" : ""}> zobrazit neaktivní (${hidden})</label>` : ""}
+    </div>
+    <div class="card" style="padding:4px 6px">
+    ${rows.length ? `<table><thead><tr><th>#</th><th>Hráč</th><th class="n">Elo</th><th class="n">Sezóna</th><th class="n">Partie</th>
+      <th class="n hide-sm">V–R–P</th><th class="hide-sm">Forma</th><th class="hide-sm">Naposledy</th></tr></thead><tbody>${body}</tbody></table>`
+      : `<p class="muted" style="padding:10px">Zatím žádní hráči.</p>`}
+    </div>`;
+}
+
+// ---------- Games ----------
+function gameRow(g, withTime = true) {
+  const side = (id, before, change, left) => `<div class="side ${left ? "left" : ""}">
+      ${left ? "" : playerLink(id)} <span class="muted">${before}</span>
+      ${g.rated ? `<span class="${cls(change)}">${signed(change)}</span>` : ""} ${left ? playerLink(id) : ""}</div>`;
+  return `<div class="game">
+    ${withTime ? `<span class="time muted">${timeOf(new Date(g.date))}</span>` : ""}
+    ${side(g.white, g.whiteBefore, g.whiteChange, true)}
+    <span class="res" ${g.rated ? "" : `title="Nehodnocená partie"`}>${g.result.replace("-", "–")}${g.rated ? "" : " *"}</span>
+    ${side(g.black, g.blackBefore, g.blackChange, false)}</div>`;
+}
+
+function viewGames() {
+  if (!D.games.length) return `<div class="card muted">Zatím se nehrálo.</div>`;
+  const groups = new Map();
+  for (const g of [...D.games].reverse()) {
+    const k = eveningKey(g.date).getTime();
+    if (!groups.has(k)) groups.set(k, []);
+    groups.get(k).push(g);
+  }
+  const anyUnrated = D.games.some(g => !g.rated);
+  return [...groups.entries()].map(([k, gs]) => {
+    const s = seasonInfo(gs[0].season);
+    return `<div class="card"><div class="evening"><span>${cap(dateLong(new Date(k)))}</span>
+      <span style="color:${s.color}">${s.emoji} ${esc(s.name)}</span></div>${gs.map(g => gameRow(g)).join("")}</div>`;
+  }).join("") + (anyUnrated ? `<p class="muted">* nehodnocená partie (nad limit partií se stejným soupeřem za večer)</p>` : "");
+}
+
+// ---------- Rating over time (all players) ----------
+const COLORS = ["#d9661a", "#3b82f6", "#16a34a", "#e11d48", "#9333ea", "#0891b2", "#ca8a04", "#db2777", "#4b5563", "#65a30d", "#7c3aed", "#ea580c"];
+let trendFocus = null;
+
+function viewTrend() {
+  if (!D.games.length) return `<div class="card muted">Graf se ukáže po první partii.</div>`;
+  // One column per evening; each player's rating at the end of that evening (unchanged if they didn't play).
+  const evenings = [...new Set(D.games.map(g => eveningKey(g.date).getTime()))].sort((a, b) => a - b);
+  const people = D.players.filter(p => !p.retired && p.games > 0).sort((a, b) => b.rating - a.rating);
+  const color = new Map(people.map((p, i) => [p.id, COLORS[i % COLORS.length]]));
+  const series = new Map(people.map(p => [p.id, { r: p.startRating, pts: [p.startRating], played: [false] }]));
+  for (const e of evenings) {
+    const tonight = D.games.filter(g => eveningKey(g.date).getTime() === e);
+    for (const g of tonight) {
+      if (series.has(g.white)) series.get(g.white).r = g.whiteBefore + g.whiteChange;
+      if (series.has(g.black)) series.get(g.black).r = g.blackBefore + g.blackChange;
+    }
+    for (const [id, s] of series) {
+      s.played.push(tonight.some(g => g.white === id || g.black === id));
+      s.pts.push(s.r);
+    }
+  }
+  const all = [...series.values()].flatMap(s => s.pts);
+  let lo = Math.min(...all), hi = Math.max(...all);
+  lo = Math.floor((lo - 10) / 25) * 25; hi = Math.ceil((hi + 10) / 25) * 25;
+  const W = 680, H = 320, L = 14, R = 46, T = 14, B = 36, n = evenings.length;
+  const x = i => L + i * (W - L - R) / Math.max(1, n);
+  const y = v => T + (hi - v) * (H - T - B) / Math.max(1, hi - lo);
+  const step = Math.max(25, Math.ceil((hi - lo) / 5 / 25) * 25);
+  let grid = "";
+  for (let v = lo; v <= hi; v += step) {
+    grid += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/>
+             <text x="${W - R + 6}" y="${y(v) + 4}" font-size="13" fill="var(--muted)">${v}</text>`;
+  }
+  const every = Math.ceil(n / 8);
+  const ticks = [`<text x="${x(0)}" y="${H - 12}" font-size="12" fill="var(--muted)">start</text>`].concat(evenings.map((e, i) =>
+    (i + 1) % every === 0 || i === n - 1 ? `<text x="${x(i + 1)}" y="${H - 12}" font-size="12" fill="var(--muted)" text-anchor="end">${new Date(e).getDate()}. ${new Date(e).getMonth() + 1}.</text>` : "")).join("");
+  const lines = people.map(p => {
+    const s = series.get(p.id), c = color.get(p.id);
+    const faded = trendFocus && trendFocus !== p.id;
+    const d = s.pts.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+    const dots = s.pts.map((v, i) => s.played[i] ? `<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${c}"/>` : "").join("");
+    return `<g opacity="${faded ? 0.15 : 1}"><path d="${d}" fill="none" stroke="${c}" stroke-width="${trendFocus === p.id ? 4 : 2.5}"
+      stroke-linejoin="round" stroke-linecap="round"/>${dots}</g>`;
+  });
+  // Draw the focused player last so it sits on top.
+  const order = people.map((p, i) => i).sort((a, b) => (people[a].id === trendFocus) - (people[b].id === trendFocus));
+  const legend = people.map(p => `<button class="${trendFocus === p.id ? "on" : ""}" data-id="${esc(p.id)}">
+      <i style="background:${color.get(p.id)}"></i>${esc(p.name)} <span class="muted">${p.rating}</span></button>`).join("");
+  return `<div class="card"><h2>Vývoj Elo všech hráčů</h2>
+    <svg class="trend" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vývoj Elo v čase">${grid}${ticks}${order.map(i => lines[i]).join("")}</svg>
+    <div class="legend" id="legend">${legend}</div>
+    <p class="muted" style="font-size:.85rem;margin-bottom:0">Jeden sloupec = jeden herní večer. Tečka znamená, že hráč ten večer hrál. Klepnutím na jméno zvýrazníte jeho čáru.</p></div>`;
+}
+
+// ---------- Seasons ----------
+function viewSeasons() {
+  const min = D.settings.seasonMinGames;
+  return `<p class="muted">Titul vítěze sezóny získá hráč, který za sezónu nejvíc zvýší své Elo (alespoň ${partie(min)}).</p>` +
+    D.seasons.map(s => {
+      const info = seasonInfo(s.key), current = s.key === D.currentSeason;
+      const res = D.players.map(p => ({ p, st: seasonStat(p, s.key) })).filter(x => x.st)
+        .map(x => ({ ...x, ok: x.st.games >= min }))
+        .sort((a, b) => (b.ok - a.ok) || (b.st.change - a.st.change) || (b.st.games - a.st.games));
+      const champ = res.find(x => x.ok);
+      const list = res.slice(0, current ? 10 : 5).map((x, i) => `<tr>
+          <td class="rank">${i + 1}.</td><td>${playerLink(x.p.id)}</td>
+          <td class="n ${cls(x.st.change)}">${signed(x.st.change)}</td><td class="n muted">${partie(x.st.games)}</td>
+          <td class="muted hide-sm">${x.ok ? "" : `chybí ${partie(min - x.st.games)}`}</td></tr>`).join("");
+      return `<div class="card season" style="--sc:${info.color}">
+        <div class="head"><div><div class="title">${info.emoji} ${esc(info.name)}</div><div class="muted">${esc(info.span)}</div></div>
+        <div>${current ? `<span class="badge" style="--season:${info.color}">Aktuální sezóna</span>` : ""}
+        ${champ ? `<span class="lead">${current ? "Vede" : "👑 Vítěz"}: ${esc(champ.p.name)} (${signed(champ.st.change)})</span>` : ""}</div></div>
+        ${res.length ? `<table><tbody>${list}</tbody></table>` : `<p class="muted">Zatím žádné partie.</p>`}</div>`;
+    }).join("");
+}
+
+// ---------- Player ----------
+function chart(p) {
+  const pts = [p.startRating].concat(p.history.map(h => h.rating));
+  if (pts.length < 2) return "";
+  const W = 600, H = 190, pad = 28, lo = Math.min(...pts), hi = Math.max(...pts), span = Math.max(20, hi - lo);
+  const x = i => pad + i * (W - 2 * pad) / (pts.length - 1);
+  const y = v => H - pad - (v - lo + span * 0.1) * (H - 2 * pad) / (span * 1.2);
+  const line = pts.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+  const grid = [lo, Math.round((lo + hi) / 2), hi].filter((v, i, a) => a.indexOf(v) === i)
+    .map(v => `<line x1="${pad}" x2="${W - pad}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/>
+               <text x="${W - pad + 4}" y="${y(v) + 4}" font-size="14" fill="var(--muted)">${v}</text>`).join("");
+  return `<svg class="chart" viewBox="0 0 ${W + 10} ${H}" role="img" aria-label="Vývoj Elo">
+    ${grid}<path d="${line}" fill="none" stroke="var(--season)" stroke-width="3" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    <circle cx="${x(pts.length - 1)}" cy="${y(pts[pts.length - 1])}" r="5" fill="var(--season)"/></svg>
+    <div class="muted" style="font-size:.85rem">Vývoj Elo po každé hodnocené partii (začátek ${p.startRating})</div>`;
+}
+
+function viewPlayer(id) {
+  const p = player(id);
+  if (!p) return `<a class="back" href="#zebricek">← Žebříček</a><div class="card">Hráč nenalezen.</div>`;
+  const mine = D.games.filter(g => g.white === id || g.black === id);
+  const h2h = new Map();
+  for (const g of mine) {
+    const opp = g.white === id ? g.black : g.white;
+    const s = g.result === "½-½" ? 0.5 : ((g.result === "1-0") === (g.white === id) ? 1 : 0);
+    const r = h2h.get(opp) || { w: 0, d: 0, l: 0 };
+    s === 1 ? r.w++ : s === 0 ? r.l++ : r.d++;
+    h2h.set(opp, r);
+  }
+  const h2hRows = [...h2h.entries()].map(([opp, r]) => ({ opp, ...r, n: r.w + r.d + r.l, s: r.w + r.d / 2 }))
+    .sort((a, b) => b.n - a.n || b.s - a.s)
+    .map(r => `<tr><td>${playerLink(r.opp)}</td><td class="n">${r.n}</td><td class="n">${r.w}–${r.d}–${r.l}</td><td class="n">${score(r.s)}/${r.n}</td></tr>`).join("");
+  const best = Math.max(p.startRating, ...p.history.map(h => h.rating));
+  const pct = p.games ? Math.round((p.wins + p.draws / 2) / p.games * 100) : 0;
+  const ranked = D.players.filter(x => !x.provisional && !x.retired && !x.inactive).sort((a, b) => b.rating - a.rating);
+  const pos = ranked.findIndex(x => x.id === id);
+  return `<a class="back" href="#zebricek">← Žebříček</a>
+    <div class="card"><span class="bigelo">${p.rating}${p.provisional ? "?" : ""}</span><h2 style="font-size:1.4rem">${esc(p.name)}${pos === 0 ? RING : ""}</h2>
+      <div class="facts">
+        <div><b>${pos >= 0 ? pos + 1 + "." : "–"}</b><span>pořadí</span></div>
+        <div><b>${p.games}</b><span>partie</span></div>
+        <div><b>${p.wins}–${p.draws}–${p.losses}</b><span>výhry–remízy–prohry</span></div>
+        <div><b>${pct} %</b><span>úspěšnost</span></div>
+        <div><b>${best}</b><span>nejvyšší Elo</span></div>
+      </div>${chart(p)}</div>
+    ${h2hRows ? `<div class="card"><h2>Vzájemné zápasy</h2><table><thead><tr><th>Soupeř</th><th class="n">Partie</th><th class="n">V–R–P</th><th class="n">Skóre</th></tr></thead><tbody>${h2hRows}</tbody></table></div>` : ""}
+    ${mine.length ? `<div class="card"><h2>Poslední partie</h2>${[...mine].reverse().slice(0, 12).map(g =>
+        `<div class="muted" style="font-size:.85rem;margin-top:6px">${dateShort(new Date(g.date))}</div>${gameRow(g, false)}`).join("")}</div>` : ""}`;
+}
+
+// ---------- Shell ----------
+function render() {
+  const h = decodeURIComponent(location.hash.replace(/^#/, ""));
+  const v = h.startsWith("hrac/") ? "hrac" : (["partie", "vyvoj", "sezony"].includes(h) ? h : "zebricek");
+  document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.v === v));
+  $("#main").innerHTML = v === "hrac" ? viewPlayer(h.slice(5)) : v === "partie" ? viewGames() : v === "vyvoj" ? viewTrend()
+    : v === "sezony" ? viewSeasons() : viewTable();
+  document.querySelectorAll("#legend button").forEach(b => b.onclick = () => {
+    trendFocus = trendFocus === b.dataset.id ? null : b.dataset.id;
+    render();
+  });
+  const cb = $("#showAll");
+  if (cb) cb.onchange = () => { localStorage.setItem("showInactive", cb.checked ? "1" : "0"); render(); };
+  if (v === "hrac") window.scrollTo(0, 0);
+}
+
+function init() {
+  const s = seasonInfo(D.currentSeason);
+  document.documentElement.style.setProperty("--season", s.color);
+  document.title = D.name;
+  $("#title").textContent = D.name;
+  const bits = [`<span class="badge">${s.emoji} ${esc(s.name)}</span>`, esc(s.span)];
+  if (D.location) bits.push(esc(D.location));
+  if (D.timeControl) bits.push(`tempo ${esc(D.timeControl)}`);
+  $("#meta").innerHTML = bits.filter(Boolean).join(" · ");
+  const g = new Date(D.generated);
+  $("#updated").textContent = `Aktualizováno ${dateShort(g)} v ${timeOf(g)} · ${D.players.filter(p => !p.retired).length} hráčů · ${partie(D.games.length)}`;
+  window.addEventListener("hashchange", render);
+  render();
+}
+
+fetch("zebricek.json?v=" + Date.now(), { cache: "no-store" })
+  .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(d => { D = d; init(); })
+  .catch(() => { $("#meta").textContent = "Data žebříčku (zebricek.json) se nepodařilo načíst."; });
+
+window.addEventListener("load", () => {
+  if (typeof qrcode !== "function") return;
+  const btn = $("#qrbtn"), box = $("#qr");
+  btn.hidden = false;
+  btn.onclick = () => {
+    const q = qrcode(0, "M");
+    q.addData(location.origin + location.pathname);
+    q.make();
+    $("#qrimg").innerHTML = q.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
+    box.style.display = "flex";
+  };
+  box.onclick = () => { box.style.display = "none"; };
+});
+</script>
+</body>
+</html>
