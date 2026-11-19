@@ -91,6 +91,13 @@
   tr.leader td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
   tr.leader .rank1 { color: var(--gold); text-shadow: 0 0 10px rgba(245, 197, 66, .7); }
   svg.trend { width: 100%; height: auto; display: block; overflow: visible; }
+  svg.trend.draw .ln { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .9s cubic-bezier(.3,.6,.3,1) forwards; }
+  svg.trend.draw .dt { opacity: 0; animation: fadein .35s ease-out .75s forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  @keyframes fadein { to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    svg.trend.draw .ln, svg.trend.draw .dt { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; opacity: 1; }
+  }
   .legend { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 10px; }
   .legend button { font: inherit; font-size: .9rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
                    background: var(--chip); color: var(--ink); border: 1px solid transparent; border-radius: 999px; padding: 4px 10px; }
@@ -267,7 +274,7 @@ function viewGames() {
 // Every player keeps one colour for good (by when they joined); the current leader is drawn in gold.
 const COLORS = ["#e0702a", "#3b82f6", "#22c55e", "#ef4444", "#a855f7", "#06b6d4", "#ec4899", "#84cc16", "#6366f1", "#14b8a6", "#94a3b8", "#d946ef"];
 const GOLD = "#f5c542";
-let trendFocus = null;
+let trendFocus = null, trendAnimate = false, lastView = null;
 
 // Smooth line that never overshoots (monotone cubic, like d3's curveMonotoneX).
 function monoPath(P) {
@@ -317,8 +324,10 @@ function viewTrend() {
       s.pts.push(s.r);
     }
   }
+  // A player who joined later starts their line the evening before their first game, not flat from "start".
+  for (const s of series.values()) s.from = Math.max(0, s.played.indexOf(true) - 1);
   const start = D.settings.startRating;
-  const all = [...series.values()].flatMap(s => s.pts).concat(start);
+  const all = [...series.values()].flatMap(s => s.pts.slice(s.from)).concat(start);
   let lo = Math.min(...all), hi = Math.max(...all);
   lo = Math.floor((lo - 10) / 25) * 25; hi = Math.ceil((hi + 10) / 25) * 25;
 
@@ -345,14 +354,14 @@ function viewTrend() {
   const ticks = [x(1) - x(0) < 70 ? "" : `<text x="${x(0)}" y="${H - 10}" font-size="12" fill="var(--muted)">start</text>`].concat(evenings.map((e, i) =>
     (i + 1) % every === 0 || i === n - 1 ? `<text x="${x(i + 1)}" y="${H - 10}" font-size="12" fill="var(--muted)" text-anchor="end">${new Date(e).getDate()}. ${new Date(e).getMonth() + 1}.</text>` : "")).join("");
 
-  // The highlighted line (the one you tapped, otherwise the leader) gets a soft glow underneath.
-  const glowID = trendFocus && series.has(trendFocus) ? trendFocus : leader;
+  // Only a line you tapped gets a soft glow underneath.
+  const glowID = trendFocus && series.has(trendFocus) ? trendFocus : null;
   let glow = "";
   if (glowID && series.has(glowID)) {
-    const P = series.get(glowID).pts.map((v, i) => [x(i), y(v)]);
+    const gs = series.get(glowID), P = gs.pts.map((v, i) => [x(i), y(v)]).slice(gs.from);
     glow = `<defs><linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="${color.get(glowID)}" stop-opacity=".20"/><stop offset=".85" stop-color="${color.get(glowID)}" stop-opacity="0"/></linearGradient></defs>
-      <path d="${monoPath(P)} L${x(n).toFixed(1)},${H - B} L${x(0).toFixed(1)},${H - B} Z" fill="url(#glow)"/>`;
+      <path d="${monoPath(P)} L${x(n).toFixed(1)},${H - B} L${x(gs.from).toFixed(1)},${H - B} Z" fill="url(#glow)"/>`;
   }
 
   const lines = new Map(people.map(p => {
@@ -361,8 +370,8 @@ function viewTrend() {
     const width = trendFocus === p.id ? 4 : p.id === leader ? 3.5 : 2.5;
     const dots = s.pts.map((v, i) => s.played[i]
       ? `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${p.id === leader || trendFocus === p.id ? 4.5 : 3.5}" fill="${c}" stroke="var(--card)" stroke-width="1.5"/>` : "").join("");
-    return [p.id, `<g opacity="${faded ? 0.15 : 1}"><path d="${monoPath(s.pts.map((v, i) => [x(i), y(v)]))}" fill="none" stroke="${c}"
-      stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"/>${dots}</g>`];
+    return [p.id, `<g opacity="${faded ? 0.15 : 1}"><path class="ln" pathLength="1" d="${monoPath(s.pts.map((v, i) => [x(i), y(v)]).slice(s.from))}"
+      fill="none" stroke="${c}" stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"/><g class="dt">${dots}</g></g>`];
   }));
 
   // Name and Elo at the end of every line, nudged apart so they never overlap.
@@ -375,10 +384,10 @@ function viewTrend() {
   }
   const labels = tags.map(t => {
     const faded = trendFocus && trendFocus !== t.p.id, c = color.get(t.p.id), bold = t.p.id === leader || trendFocus === t.p.id;
-    return `<g opacity="${faded ? 0.3 : 1}">
+    return `<g class="dt"><g opacity="${faded ? 0.3 : 1}">
       ${Math.abs(t.ly - t.y) > 3 ? `<path d="M${x(n) + 4},${t.y} L${x(n) + 10},${t.ly}" stroke="${c}" stroke-opacity=".6" fill="none"/>` : ""}
       <text x="${x(n) + 13}" y="${t.ly + 4}" font-size="13" fill="${c}" font-weight="${bold ? 700 : 500}">${esc(short.get(t.p.id))}
-      <tspan fill="var(--muted)" font-weight="400"> ${t.p.rating}</tspan></text></g>`;
+      <tspan fill="var(--muted)" font-weight="400"> ${t.p.rating}</tspan></text></g></g>`;
   }).join("");
 
   // Faded lines first, the highlighted one on top.
@@ -386,7 +395,7 @@ function viewTrend() {
   const legend = people.map(p => `<button class="${trendFocus === p.id ? "on" : ""}" data-id="${esc(p.id)}">
       <i style="background:${color.get(p.id)}"></i>${esc(p.name)} <span class="muted">${p.rating}</span></button>`).join("");
   return `<div class="card"><h2>Vývoj Elo všech hráčů</h2>
-    <svg class="trend" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Vývoj Elo v čase">${grid}${ticks}${glow}${order.map(p => lines.get(p.id)).join("")}${labels}</svg>
+    <svg class="trend${trendAnimate ? " draw" : ""}" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Vývoj Elo v čase">${grid}${ticks}${glow}${order.map(p => lines.get(p.id)).join("")}${labels}</svg>
     <div class="legend" id="legend">${legend}</div>
     <p class="muted" style="font-size:.85rem;margin-bottom:0">Jeden sloupec = jeden herní večer. Tečka znamená, že hráč ten večer hrál. Klepnutím na jméno zvýrazníte jeho čáru.</p></div>`;
 }
@@ -467,6 +476,9 @@ function viewPlayer(id) {
 function render() {
   const h = decodeURIComponent(location.hash.replace(/^#/, ""));
   const v = h.startsWith("hrac/") ? "hrac" : (["partie", "vyvoj", "sezony"].includes(h) ? h : "zebricek");
+  // The graph draws itself in when you open the tab (not when you tap a name or turn the phone).
+  trendAnimate = v === "vyvoj" && lastView !== "vyvoj";
+  lastView = v;
   document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.v === v));
   $("#main").innerHTML = v === "hrac" ? viewPlayer(h.slice(5)) : v === "partie" ? viewGames() : v === "vyvoj" ? viewTrend()
     : v === "sezony" ? viewSeasons() : viewTable();
