@@ -335,7 +335,7 @@ function viewTrend() {
   const step = Math.max(25, Math.ceil((hi - lo) / 5 / 25) * 25);
   let grid = "";
   for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
-    if (v === start) continue;
+    if (Math.abs(v - start) < step * 0.4) continue;
     grid += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-opacity=".55"/>
              <text x="${L - 7}" y="${y(v) + 4}" font-size="12" fill="var(--muted)" text-anchor="end">${v}</text>`;
   }
