@@ -210,7 +210,7 @@ function viewTable() {
   const body = rows.map(({ p, rank }) => {
     const st = seasonStat(p, cur);
     const tag = p.retired ? `<span class="tag">ukončil</span>` : p.inactive ? `<span class="tag">neaktivní</span>`
-      : p.provisional ? `<span class="tag new" title="Do pořadí se počítá po ${D.settings.provisionalGames} hodnocených partiích">je to nováček</span>` : "";
+      : p.provisional ? `<span class="tag new" title="Do pořadí se počítají hráči s nejméně ${D.settings.provisionalGames} ${D.settings.provisionalGames === 1 ? "partií" : "partiemi"}">je to nováček</span>` : "";
     return `<tr class="click ${rank === 1 ? "leader" : ""}" onclick="location.hash='hrac/${encodeURIComponent(p.id)}'">
       <td class="rank ${rank === 1 ? "rank1" : ""}">${rank ?? "–"}</td>
       <td>${esc(p.name)}${rank === 1 ? RING + LORD : ""}${tag}</td>
@@ -223,7 +223,7 @@ function viewTable() {
   }).join("");
   const hidden = D.players.filter(p => p.inactive || p.retired).length;
   return `<div class="controls">
-      <span>Pořadí podle Elo · do pořadí po odehrání ${partie(D.settings.provisionalGames)}</span>
+      <span>Seřazeno podle Elo · do pořadí se počítají hráči s nejméně ${D.settings.provisionalGames} ${D.settings.provisionalGames === 1 ? "partií" : "partiemi"}</span>
       ${hidden ? `<label><input type="checkbox" id="showAll" ${showAll ? "checked" : ""}> zobrazit neaktivní (${hidden})</label>` : ""}
     </div>
     <div class="card" style="padding:4px 6px">
