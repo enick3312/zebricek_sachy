@@ -7,19 +7,22 @@
 <meta name="description" content="Pořadí, partie a sezóny našeho šachového žebříčku.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
 <style>
+  /* Always dark: black, ember orange and gold (the season colour is set from the data). */
   :root {
-    --bg: #f6f4ef; --card: #ffffff; --ink: #1d1d1f; --muted: #6b6b70; --line: #e4e1da;
-    --win: #2e7d32; --loss: #c62828; --draw: #8e8e93; --season: #d9661a; --chip: #efece5;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --bg: #151517; --card: #1f1f22; --ink: #f2f2f5; --muted: #9a9aa2; --line: #333338;
-            --win: #5fd068; --loss: #ff6b6b; --draw: #9a9aa2; --chip: #2a2a2e; }
+    color-scheme: dark;
+    --bg: #0c0a09; --card: #16120f; --ink: #f4ede3; --muted: #a59b90; --line: #2b241e;
+    --win: #6fd27a; --loss: #ff6b5b; --draw: #9a948c; --season: #e0702a; --chip: #231d18; --gold: #f5c542;
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink);
          font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
   header { padding: 22px 16px 14px;
            background: linear-gradient(135deg, color-mix(in srgb, var(--season) 30%, transparent), transparent 70%); }
+  header.photo { min-height: 210px; display: flex; align-items: flex-end; padding-bottom: 18px;
+                 background-size: cover; background-position: center 45%; }
+  header.photo .wrap { width: 100%; }
+  header.photo h1 { font-size: 2.1rem; text-shadow: 0 2px 12px rgba(0,0,0,.8); }
+  header.photo .meta { color: #e9dfd3; text-shadow: 0 1px 6px rgba(0,0,0,.9); }
   .wrap { max-width: 920px; margin: 0 auto; }
   h1 { margin: 0; font-size: 1.7rem; line-height: 1.2; }
   .meta { color: var(--muted); margin-top: 4px; font-size: .95rem; }
@@ -76,7 +79,26 @@
   .bigelo { font-size: 2.4rem; font-weight: 800; float: right; line-height: 1; }
   main a.back { text-decoration: none; color: var(--season); font-weight: 600; display: inline-block; margin-bottom: 10px; }
   svg.chart { width: 100%; height: auto; display: block; margin-top: 8px; }
-  .ring { width: 1.15em; height: 1.15em; vertical-align: -0.2em; margin-left: 6px; filter: drop-shadow(0 0 3px rgba(255, 190, 40, .55)); }
+  .ring { width: 1.15em; height: 1.15em; vertical-align: -0.2em; margin-left: 6px; filter: drop-shadow(0 0 3px rgba(255, 170, 40, .6));
+          animation: ember 2.8s ease-in-out infinite; }
+  @keyframes ember { 0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 170, 40, .5)); }
+                     50% { filter: drop-shadow(0 0 8px rgba(255, 120, 20, .95)); } }
+  .ring-img { height: 1.55em; width: auto; vertical-align: -0.5em; margin-left: 7px; border-radius: 6px;
+              animation: emberbox 2.8s ease-in-out infinite; }
+  @keyframes emberbox { 0%, 100% { box-shadow: 0 0 3px rgba(255, 120, 20, .45); } 50% { box-shadow: 0 0 11px rgba(255, 110, 20, .95); } }
+  @media (prefers-reduced-motion: reduce) { .ring, .ring-img { animation: none; } }
+  .lordcard { display: block; position: relative; border-radius: 16px; overflow: hidden; min-height: 150px; padding: 20px 18px;
+              margin-bottom: 14px; text-decoration: none; color: var(--ink); border: 1px solid rgba(245, 197, 66, .35);
+              box-shadow: 0 0 26px rgba(255, 100, 20, .22);
+              background: linear-gradient(90deg, rgba(12,10,9,.96) 0%, rgba(12,10,9,.78) 42%, rgba(12,10,9,0) 78%),
+                          url(prsten.jpg) right center / auto 118% no-repeat, #140402; }
+  .lordcard .who { font-size: 1.7rem; font-weight: 800; color: var(--gold); text-shadow: 0 0 14px rgba(245, 197, 66, .55); margin: 6px 0 2px; }
+  .lordcard .sub { color: #e9dfd3; }
+  .lordcard .tag.lord { margin-left: 0; font-size: .8rem; }
+  @media (max-width: 620px) { .lordcard { background-position: 0 0, 62% center; min-height: 140px; } .lordcard .who { font-size: 1.4rem; } }
+  tr.leader { background: linear-gradient(90deg, rgba(245, 197, 66, .18), rgba(224, 112, 42, .07) 50%, transparent 90%); }
+  tr.leader td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
+  tr.leader .rank1 { color: var(--gold); text-shadow: 0 0 10px rgba(245, 197, 66, .7); }
   svg.trend { width: 100%; height: auto; display: block; }
   .legend { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 10px; }
   .legend button { font: inherit; font-size: .9rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
@@ -173,13 +195,14 @@ const seasonStat = (p, key) => p.seasons.find(s => s.season === key);
 // Evening of a game: games before 6 am belong to the previous evening.
 const eveningKey = iso => { const d = new Date(new Date(iso).getTime() - 6 * 3600000); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
 
-// The leader's ring: a plain golden band.
+// The leader's ring: the ring photo (prsten-ikona.jpg); a drawn golden band if the photo isn't uploaded.
 const LORD = `<span class="tag lord" title="Vedoucí hráč žebříčku">pán prstenu</span>`;
-const RING = `<svg class="ring" viewBox="0 0 24 24" role="img" aria-label="Prsten moci"><title>Prsten moci – první místo v žebříčku</title>
+const RING_SVG = `<svg class="ring" viewBox="0 0 24 24" role="img" aria-label="Prsten moci"><title>Prsten moci – první místo v žebříčku</title>
   <defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".45" stop-color="#f5c542"/>
   <stop offset="1" stop-color="#b8860b"/></linearGradient></defs>
   <ellipse cx="12" cy="13" rx="8.2" ry="7.2" fill="none" stroke="url(#gold)" stroke-width="3.4"/>
   <path d="M6.2 9.6 A7 6 0 0 1 12 6.6" fill="none" stroke="#fffbe0" stroke-width="1.1" stroke-linecap="round" opacity=".9"/></svg>`;
+const RING = `<img class="ring-img" src="prsten-ikona.jpg" alt="Prsten moci" title="Prsten moci – první místo v žebříčku" onerror="this.outerHTML=RING_SVG">`;
 
 // ---------- Ladder table ----------
 function viewTable() {
@@ -195,7 +218,7 @@ function viewTable() {
     const st = seasonStat(p, cur);
     const tag = p.retired ? `<span class="tag">ukončil</span>` : p.inactive ? `<span class="tag">neaktivní</span>`
       : p.provisional ? `<span class="tag new" title="Do pořadí se počítá po ${D.settings.provisionalGames} hodnocených partiích">je to nováček</span>` : "";
-    return `<tr class="click" onclick="location.hash='hrac/${encodeURIComponent(p.id)}'">
+    return `<tr class="click ${rank === 1 ? "leader" : ""}" onclick="location.hash='hrac/${encodeURIComponent(p.id)}'">
       <td class="rank ${rank === 1 ? "rank1" : ""}">${rank ?? "–"}</td>
       <td>${esc(p.name)}${rank === 1 ? RING + LORD : ""}${tag}</td>
       <td class="n elo">${p.rating}${p.provisional ? "?" : ""}</td>
@@ -206,7 +229,14 @@ function viewTable() {
       <td class="hide-sm muted">${relDay(p.lastPlayed)}</td></tr>`;
   }).join("");
   const hidden = D.players.filter(p => p.inactive || p.retired).length;
-  return `<div class="controls">
+  const top = rows.find(r => r.rank === 1);
+  const lord = top ? (() => {
+    const st = seasonStat(top.p, cur);
+    return `<a class="lordcard" href="#hrac/${encodeURIComponent(top.p.id)}"><span class="tag lord">pán prstenu</span>
+      <div class="who">${esc(top.p.name)}</div>
+      <div class="sub">Elo ${top.p.rating} · ${partie(top.p.games)}${st ? ` · sezóna ${signed(st.change)}` : ""}</div></a>`;
+  })() : "";
+  return `${lord}<div class="controls">
       <span>Pořadí podle Elo · do pořadí po odehrání ${partie(D.settings.provisionalGames)}</span>
       ${hidden ? `<label><input type="checkbox" id="showAll" ${showAll ? "checked" : ""}> zobrazit neaktivní (${hidden})</label>` : ""}
     </div>
@@ -388,8 +418,28 @@ function render() {
   if (v === "hrac") window.scrollTo(0, 0);
 }
 
+// Optional header photo per season: upload jaro.jpg, leto.jpg, podzim.jpg or zima.jpg next to index.html.
+const SEASON_PHOTOS = ["jaro.jpg", "leto.jpg", "podzim.jpg", "zima.jpg"];
+function seasonPhoto() {
+  let part;
+  if (D.seasonMode === "quarterly") part = D.currentSeason % 10;
+  else {
+    const m = new Date().getMonth() + 1;
+    part = m >= 3 && m <= 5 ? 0 : m >= 6 && m <= 8 ? 1 : m >= 9 && m <= 11 ? 2 : 3;
+  }
+  const file = SEASON_PHOTOS[part], img = new Image();
+  img.onload = () => {
+    const h = document.querySelector("header");
+    h.style.backgroundImage = `linear-gradient(90deg, rgba(12,10,9,.88) 0%, rgba(12,10,9,.55) 55%, rgba(12,10,9,.2)),
+      linear-gradient(0deg, rgba(12,10,9,.9), transparent 45%), url(${file})`;
+    h.classList.add("photo");
+  };
+  img.src = file;
+}
+
 function init() {
   const s = seasonInfo(D.currentSeason);
+  seasonPhoto();
   document.documentElement.style.setProperty("--season", s.color);
   document.title = D.name;
   $("#title").textContent = D.name;
