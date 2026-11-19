@@ -167,14 +167,18 @@ function seasonInfo(key) {
   }
 }
 
+// "před 14 hodinami", "včera", "před 3 dny", … – the same style as the app.
 function relDay(iso) {
   if (!iso) return "–";
-  const d = new Date(iso), days = Math.floor((Date.now() - d.getTime()) / 86400000);
-  if (days <= 0) return "dnes";
-  if (days === 1) return "včera";
-  if (days < 7) return `před ${days} dny`;
-  if (days < 30) { const w = Math.round(days / 7); return w === 1 ? "před týdnem" : `před ${w} týdny`; }
-  const m = Math.round(days / 30); return m <= 1 ? "před měsícem" : `před ${m} měsíci`;
+  const rtf = new Intl.RelativeTimeFormat("cs", { numeric: "auto" });
+  const s = (new Date(iso).getTime() - Date.now()) / 1000, a = Math.abs(s);
+  if (a < 60) return "právě teď";
+  if (a < 3600) return rtf.format(Math.round(s / 60), "minute");
+  if (a < 86400) return rtf.format(Math.round(s / 3600), "hour");
+  if (a < 7 * 86400) return rtf.format(Math.round(s / 86400), "day");
+  if (a < 30 * 86400) return rtf.format(Math.round(s / 604800), "week");
+  if (a < 365 * 86400) return rtf.format(Math.round(s / 2592000), "month");
+  return rtf.format(Math.round(s / 31536000), "year");
 }
 
 const player = id => D.players.find(p => p.id === id);
@@ -184,7 +188,7 @@ const seasonStat = (p, key) => p.seasons.find(s => s.season === key);
 // Evening of a game: games before 6 am belong to the previous evening.
 const eveningKey = iso => { const d = new Date(new Date(iso).getTime() - 6 * 3600000); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
 
-// The leader's ring: the ring photo (prsten-ikona.jpg); a drawn golden band if the photo isn't uploaded.
+// The leader's ring: the ring photo with a transparent background (prsten-ikona.png); a drawn golden band if it isn't uploaded.
 const LORD = `<span class="tag lord" title="Vedoucí hráč žebříčku">pán prstenu</span>`;
 const RING_SVG = `<svg class="ring" viewBox="0 0 24 24" role="img" aria-label="Prsten moci"><title>Prsten moci – první místo v žebříčku</title>
   <defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".45" stop-color="#f5c542"/>
@@ -215,7 +219,7 @@ function viewTable() {
       <td class="n">${p.games}</td>
       <td class="n hide-sm">${p.wins}–${p.draws}–${p.losses}</td>
       <td class="hide-sm">${formStrip(p.form)}</td>
-      <td class="hide-sm muted">${relDay(p.lastPlayed)}</td></tr>`;
+      <td class="hide-sm muted" ${p.lastPlayed ? `title="${dateLong(new Date(p.lastPlayed))} v ${timeOf(new Date(p.lastPlayed))}"` : ""}>${relDay(p.lastPlayed)}</td></tr>`;
   }).join("");
   const hidden = D.players.filter(p => p.inactive || p.retired).length;
   return `<div class="controls">
