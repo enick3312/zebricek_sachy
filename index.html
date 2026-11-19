@@ -90,7 +90,7 @@
   tr.leader { background: linear-gradient(90deg, rgba(245, 197, 66, .18), rgba(224, 112, 42, .07) 50%, transparent 90%); }
   tr.leader td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
   tr.leader .rank1 { color: var(--gold); text-shadow: 0 0 10px rgba(245, 197, 66, .7); }
-  svg.trend { width: 100%; height: auto; display: block; }
+  svg.trend { width: 100%; height: auto; display: block; overflow: visible; }
   .legend { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 10px; }
   .legend button { font: inherit; font-size: .9rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
                    background: var(--chip); color: var(--ink); border: 1px solid transparent; border-radius: 999px; padding: 4px 10px; }
@@ -264,15 +264,47 @@ function viewGames() {
 }
 
 // ---------- Rating over time (all players) ----------
-const COLORS = ["#d9661a", "#3b82f6", "#16a34a", "#e11d48", "#9333ea", "#0891b2", "#ca8a04", "#db2777", "#4b5563", "#65a30d", "#7c3aed", "#ea580c"];
+// Every player keeps one colour for good (by when they joined); the current leader is drawn in gold.
+const COLORS = ["#e0702a", "#3b82f6", "#22c55e", "#ef4444", "#a855f7", "#06b6d4", "#ec4899", "#84cc16", "#6366f1", "#14b8a6", "#94a3b8", "#d946ef"];
+const GOLD = "#f5c542";
 let trendFocus = null;
+
+// Smooth line that never overshoots (monotone cubic, like d3's curveMonotoneX).
+function monoPath(P) {
+  const f = v => v.toFixed(1), n = P.length;
+  if (n < 2) return `M${f(P[0][0])},${f(P[0][1])}`;
+  const dx = [], s = [], m = [];
+  for (let i = 0; i < n - 1; i++) { dx[i] = P[i + 1][0] - P[i][0]; s[i] = (P[i + 1][1] - P[i][1]) / dx[i]; }
+  m[0] = s[0]; m[n - 1] = s[n - 2];
+  for (let i = 1; i < n - 1; i++) m[i] = s[i - 1] * s[i] <= 0 ? 0 : (s[i - 1] + s[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (s[i] === 0) { m[i] = 0; m[i + 1] = 0; continue; }
+    const a = m[i] / s[i], b = m[i + 1] / s[i], h = a * a + b * b;
+    if (h > 9) { const t = 3 / Math.sqrt(h); m[i] = t * a * s[i]; m[i + 1] = t * b * s[i]; }
+  }
+  let d = `M${f(P[0][0])},${f(P[0][1])}`;
+  for (let i = 0; i < n - 1; i++) {
+    const h = dx[i] / 3;
+    d += ` C${f(P[i][0] + h)},${f(P[i][1] + m[i] * h)} ${f(P[i + 1][0] - h)},${f(P[i + 1][1] - m[i + 1] * h)} ${f(P[i + 1][0])},${f(P[i + 1][1])}`;
+  }
+  return d;
+}
+
+// Surname for the end-of-line labels ("Baran, Vojtěch" → Baran, "Mikita Elinov" → Elinov); full name if two share it.
+function shortNames(people) {
+  const sur = p => p.name.includes(",") ? p.name.split(",")[0].trim() : p.name.trim().split(/\s+/).pop();
+  const count = new Map();
+  people.forEach(p => count.set(sur(p), (count.get(sur(p)) || 0) + 1));
+  return new Map(people.map(p => [p.id, count.get(sur(p)) > 1 ? p.name : sur(p)]));
+}
 
 function viewTrend() {
   if (!D.games.length) return `<div class="card muted">Graf se ukáže po první partii.</div>`;
   // One column per evening; each player's rating at the end of that evening (unchanged if they didn't play).
   const evenings = [...new Set(D.games.map(g => eveningKey(g.date).getTime()))].sort((a, b) => a - b);
   const people = D.players.filter(p => !p.retired && p.games > 0).sort((a, b) => b.rating - a.rating);
-  const color = new Map(people.map((p, i) => [p.id, COLORS[i % COLORS.length]]));
+  const leader = (D.players.find(p => p.rank === 1) || {}).id;
+  const color = new Map(D.players.map((p, i) => [p.id, p.id === leader ? GOLD : COLORS[i % COLORS.length]]));
   const series = new Map(people.map(p => [p.id, { r: p.startRating, pts: [p.startRating], played: [false] }]));
   for (const e of evenings) {
     const tonight = D.games.filter(g => eveningKey(g.date).getTime() === e);
@@ -285,35 +317,76 @@ function viewTrend() {
       s.pts.push(s.r);
     }
   }
-  const all = [...series.values()].flatMap(s => s.pts);
+  const start = D.settings.startRating;
+  const all = [...series.values()].flatMap(s => s.pts).concat(start);
   let lo = Math.min(...all), hi = Math.max(...all);
   lo = Math.floor((lo - 10) / 25) * 25; hi = Math.ceil((hi + 10) / 25) * 25;
-  const W = 680, H = 320, L = 14, R = 46, T = 14, B = 36, n = evenings.length;
+
+  // Drawn at the real width of the page, so text stays the same size on phones and desktops.
+  const short = shortNames(people);
+  const W = Math.round(Math.min(940, Math.max(300, (($("#main") || {}).clientWidth || 680) - 30)));
+  const H = W < 520 ? 300 : 340, n = evenings.length;
+  const longest = Math.max(...people.map(p => (short.get(p.id) + " " + p.rating).length));
+  const L = 40, R = Math.min(W < 520 ? 132 : 170, longest * 7.6 + 20), T = 14, B = 34;
   const x = i => L + i * (W - L - R) / Math.max(1, n);
   const y = v => T + (hi - v) * (H - T - B) / Math.max(1, hi - lo);
+
+  // Faint grid with the scale on the left; the starting rating as a dashed line.
   const step = Math.max(25, Math.ceil((hi - lo) / 5 / 25) * 25);
   let grid = "";
-  for (let v = lo; v <= hi; v += step) {
-    grid += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/>
-             <text x="${W - R + 6}" y="${y(v) + 4}" font-size="13" fill="var(--muted)">${v}</text>`;
+  for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) {
+    if (v === start) continue;
+    grid += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-opacity=".55"/>
+             <text x="${L - 7}" y="${y(v) + 4}" font-size="12" fill="var(--muted)" text-anchor="end">${v}</text>`;
   }
-  const every = Math.ceil(n / 8);
-  const ticks = [`<text x="${x(0)}" y="${H - 12}" font-size="12" fill="var(--muted)">start</text>`].concat(evenings.map((e, i) =>
-    (i + 1) % every === 0 || i === n - 1 ? `<text x="${x(i + 1)}" y="${H - 12}" font-size="12" fill="var(--muted)" text-anchor="end">${new Date(e).getDate()}. ${new Date(e).getMonth() + 1}.</text>` : "")).join("");
-  const lines = people.map(p => {
+  grid += `<line x1="${L}" x2="${W - R}" y1="${y(start)}" y2="${y(start)}" stroke="var(--muted)" stroke-opacity=".6" stroke-dasharray="5 5"/>
+           <text x="${L - 7}" y="${y(start) + 4}" font-size="12" fill="var(--ink)" text-anchor="end"><title>Začátek – každý začíná na ${start}</title>${start}</text>`;
+  const every = Math.ceil(n / (W < 520 ? 4 : 8));
+  const ticks = [x(1) - x(0) < 70 ? "" : `<text x="${x(0)}" y="${H - 10}" font-size="12" fill="var(--muted)">start</text>`].concat(evenings.map((e, i) =>
+    (i + 1) % every === 0 || i === n - 1 ? `<text x="${x(i + 1)}" y="${H - 10}" font-size="12" fill="var(--muted)" text-anchor="end">${new Date(e).getDate()}. ${new Date(e).getMonth() + 1}.</text>` : "")).join("");
+
+  // The highlighted line (the one you tapped, otherwise the leader) gets a soft glow underneath.
+  const glowID = trendFocus && series.has(trendFocus) ? trendFocus : leader;
+  let glow = "";
+  if (glowID && series.has(glowID)) {
+    const P = series.get(glowID).pts.map((v, i) => [x(i), y(v)]);
+    glow = `<defs><linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${color.get(glowID)}" stop-opacity=".20"/><stop offset=".85" stop-color="${color.get(glowID)}" stop-opacity="0"/></linearGradient></defs>
+      <path d="${monoPath(P)} L${x(n).toFixed(1)},${H - B} L${x(0).toFixed(1)},${H - B} Z" fill="url(#glow)"/>`;
+  }
+
+  const lines = new Map(people.map(p => {
     const s = series.get(p.id), c = color.get(p.id);
     const faded = trendFocus && trendFocus !== p.id;
-    const d = s.pts.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
-    const dots = s.pts.map((v, i) => s.played[i] ? `<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="${c}"/>` : "").join("");
-    return `<g opacity="${faded ? 0.15 : 1}"><path d="${d}" fill="none" stroke="${c}" stroke-width="${trendFocus === p.id ? 4 : 2.5}"
-      stroke-linejoin="round" stroke-linecap="round"/>${dots}</g>`;
-  });
-  // Draw the focused player last so it sits on top.
-  const order = people.map((p, i) => i).sort((a, b) => (people[a].id === trendFocus) - (people[b].id === trendFocus));
+    const width = trendFocus === p.id ? 4 : p.id === leader ? 3.5 : 2.5;
+    const dots = s.pts.map((v, i) => s.played[i]
+      ? `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${p.id === leader || trendFocus === p.id ? 4.5 : 3.5}" fill="${c}" stroke="var(--card)" stroke-width="1.5"/>` : "").join("");
+    return [p.id, `<g opacity="${faded ? 0.15 : 1}"><path d="${monoPath(s.pts.map((v, i) => [x(i), y(v)]))}" fill="none" stroke="${c}"
+      stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"/>${dots}</g>`];
+  }));
+
+  // Name and Elo at the end of every line, nudged apart so they never overlap.
+  const gap = 16, top = T + 6, bottom = H - B;
+  const tags = people.map(p => ({ p, y: y(series.get(p.id).pts[n]) })).sort((a, b) => a.y - b.y);
+  tags.forEach((t, i) => { t.ly = Math.max(t.y, i ? tags[i - 1].ly + gap : top); });
+  for (let i = tags.length - 1; i >= 0; i--) {
+    const limit = i === tags.length - 1 ? bottom : tags[i + 1].ly - gap;
+    if (tags[i].ly > limit) tags[i].ly = limit;
+  }
+  const labels = tags.map(t => {
+    const faded = trendFocus && trendFocus !== t.p.id, c = color.get(t.p.id), bold = t.p.id === leader || trendFocus === t.p.id;
+    return `<g opacity="${faded ? 0.3 : 1}">
+      ${Math.abs(t.ly - t.y) > 3 ? `<path d="M${x(n) + 4},${t.y} L${x(n) + 10},${t.ly}" stroke="${c}" stroke-opacity=".6" fill="none"/>` : ""}
+      <text x="${x(n) + 13}" y="${t.ly + 4}" font-size="13" fill="${c}" font-weight="${bold ? 700 : 500}">${esc(short.get(t.p.id))}
+      <tspan fill="var(--muted)" font-weight="400"> ${t.p.rating}</tspan></text></g>`;
+  }).join("");
+
+  // Faded lines first, the highlighted one on top.
+  const order = [...people].sort((a, b) => ((a.id === trendFocus) * 2 + (a.id === leader)) - ((b.id === trendFocus) * 2 + (b.id === leader)));
   const legend = people.map(p => `<button class="${trendFocus === p.id ? "on" : ""}" data-id="${esc(p.id)}">
       <i style="background:${color.get(p.id)}"></i>${esc(p.name)} <span class="muted">${p.rating}</span></button>`).join("");
   return `<div class="card"><h2>Vývoj Elo všech hráčů</h2>
-    <svg class="trend" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vývoj Elo v čase">${grid}${ticks}${order.map(i => lines[i]).join("")}</svg>
+    <svg class="trend" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Vývoj Elo v čase">${grid}${ticks}${glow}${order.map(p => lines.get(p.id)).join("")}${labels}</svg>
     <div class="legend" id="legend">${legend}</div>
     <p class="muted" style="font-size:.85rem;margin-bottom:0">Jeden sloupec = jeden herní večer. Tečka znamená, že hráč ten večer hrál. Klepnutím na jméno zvýrazníte jeho čáru.</p></div>`;
 }
@@ -438,6 +511,14 @@ function init() {
   const g = new Date(D.generated);
   $("#updated").textContent = `Aktualizováno ${dateShort(g)} v ${timeOf(g)} · ${D.players.filter(p => !p.retired).length} hráčů · ${partie(D.games.length)}`;
   window.addEventListener("hashchange", render);
+  // Redraw the graph at the new width when the window or phone is turned.
+  let resizeTimer, lastWidth = window.innerWidth;
+  window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      if (window.innerWidth !== lastWidth && location.hash === "#vyvoj") { lastWidth = window.innerWidth; render(); }
+    }, 150);
+  });
   render();
 }
 
