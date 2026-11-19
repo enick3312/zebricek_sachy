@@ -85,6 +85,7 @@
           animation: ember 2.8s ease-in-out infinite; }
   @keyframes ember { 0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 170, 40, .5)); }
                      50% { filter: drop-shadow(0 0 8px rgba(255, 120, 20, .95)); } }
+  .wins { margin-left: 6px; letter-spacing: 1px; font-size: .95em; white-space: nowrap; }
   .ring-img { height: 1.6em; width: auto; vertical-align: -0.5em; margin-left: 6px; animation: ember 2.8s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce) { .ring, .ring-img { animation: none; } }
   tr.leader { background: linear-gradient(90deg, rgba(245, 197, 66, .18), rgba(224, 112, 42, .07) 50%, transparent 90%); }
@@ -198,6 +199,21 @@ const seasonStat = (p, key) => p.seasons.find(s => s.season === key);
 const eveningKey = iso => { const d = new Date(new Date(iso).getTime() - 6 * 3600000); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
 
 // The leader's ring: the ring photo with a transparent background (prsten-ikona.png); a drawn golden band if it isn't uploaded.
+// Little season icons for every finished season the player won (same rule as the Sezóny tab: most Elo gained with
+// enough games, ties → more games). The current season isn't decided yet.
+function seasonChamp(key) {
+  const min = D.settings.seasonMinGames;
+  const res = D.players.map(p => ({ p, st: seasonStat(p, key) })).filter(x => x.st && x.st.games >= min)
+    .sort((a, b) => (b.st.change - a.st.change) || (b.st.games - a.st.games));
+  return res.length ? res[0].p.id : null;
+}
+function wins(id) {
+  const keys = D.seasons.map(s => s.key).filter(k => k !== D.currentSeason && seasonChamp(k) === id).sort((a, b) => a - b);
+  if (!keys.length) return "";
+  return `<span class="wins">${keys.map(k => { const i = seasonInfo(k);
+    return `<span title="Vítěz sezóny: ${esc(i.name)}">${D.seasonMode === "quarterly" ? i.emoji : "🏆"}</span>`; }).join("")}</span>`;
+}
+
 const LORD = `<span class="tag lord" title="Vedoucí hráč žebříčku">pán prstenu</span>`;
 const RING_SVG = `<svg class="ring" viewBox="0 0 24 24" role="img" aria-label="Prsten moci"><title>Prsten moci – první místo v žebříčku</title>
   <defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3b0"/><stop offset=".45" stop-color="#f5c542"/>
@@ -222,7 +238,7 @@ function viewTable() {
       : p.provisional ? `<span class="tag new" title="Do pořadí se počítají hráči s nejméně ${D.settings.provisionalGames} ${D.settings.provisionalGames === 1 ? "partií" : "partiemi"}">je to nováček</span>` : "";
     return `<tr class="click ${rank === 1 ? "leader" : ""}" onclick="location.hash='hrac/${encodeURIComponent(p.id)}'">
       <td class="rank ${rank === 1 ? "rank1" : ""}">${rank ?? "–"}</td>
-      <td>${esc(p.name)}${rank === 1 ? RING + LORD : ""}${tag}</td>
+      <td>${esc(p.name)}${wins(p.id)}${rank === 1 ? RING + LORD : ""}${tag}</td>
       <td class="n elo">${p.rating}${p.provisional ? "?" : ""}</td>
       <td class="n ${st ? cls(st.change) : "muted"}">${st ? signed(st.change) : "–"}</td>
       <td class="n">${p.games}</td>
@@ -459,7 +475,7 @@ function viewPlayer(id) {
   const ranked = D.players.filter(x => !x.provisional && !x.retired && !x.inactive).sort((a, b) => b.rating - a.rating);
   const pos = ranked.findIndex(x => x.id === id);
   return `<a class="back" href="#zebricek">← Žebříček</a>
-    <div class="card"><span class="bigelo">${p.rating}${p.provisional ? "?" : ""}</span><h2 style="font-size:1.4rem">${esc(p.name)}${pos === 0 ? RING + LORD : ""}</h2>
+    <div class="card"><span class="bigelo">${p.rating}${p.provisional ? "?" : ""}</span><h2 style="font-size:1.4rem">${esc(p.name)}${wins(p.id)}${pos === 0 ? RING + LORD : ""}</h2>
       <div class="facts">
         <div><b>${pos >= 0 ? pos + 1 + "." : "–"}</b><span>pořadí</span></div>
         <div><b>${p.games}</b><span>partie</span></div>
@@ -518,7 +534,6 @@ function init() {
   $("#title").textContent = D.name;
   const bits = [`<span class="badge">${s.emoji} ${esc(s.name)}</span>`, esc(s.span)];
   if (D.location) bits.push(esc(D.location));
-  if (D.timeControl) bits.push(`tempo ${esc(D.timeControl)}`);
   $("#meta").innerHTML = bits.filter(Boolean).join(" · ");
   const g = new Date(D.generated);
   $("#updated").textContent = `Aktualizováno ${dateShort(g)} v ${timeOf(g)} · ${D.players.filter(p => !p.retired).length} hráčů · ${partie(D.games.length)}`;
