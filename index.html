@@ -83,19 +83,8 @@
           animation: ember 2.8s ease-in-out infinite; }
   @keyframes ember { 0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 170, 40, .5)); }
                      50% { filter: drop-shadow(0 0 8px rgba(255, 120, 20, .95)); } }
-  .ring-img { height: 1.55em; width: auto; vertical-align: -0.5em; margin-left: 7px; border-radius: 6px;
-              animation: emberbox 2.8s ease-in-out infinite; }
-  @keyframes emberbox { 0%, 100% { box-shadow: 0 0 3px rgba(255, 120, 20, .45); } 50% { box-shadow: 0 0 11px rgba(255, 110, 20, .95); } }
+  .ring-img { height: 1.6em; width: auto; vertical-align: -0.5em; margin-left: 6px; animation: ember 2.8s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce) { .ring, .ring-img { animation: none; } }
-  .lordcard { display: block; position: relative; border-radius: 16px; overflow: hidden; min-height: 150px; padding: 20px 18px;
-              margin-bottom: 14px; text-decoration: none; color: var(--ink); border: 1px solid rgba(245, 197, 66, .35);
-              box-shadow: 0 0 26px rgba(255, 100, 20, .22);
-              background: linear-gradient(90deg, rgba(12,10,9,.96) 0%, rgba(12,10,9,.78) 42%, rgba(12,10,9,0) 78%),
-                          url(prsten.jpg) right center / auto 118% no-repeat, #140402; }
-  .lordcard .who { font-size: 1.7rem; font-weight: 800; color: var(--gold); text-shadow: 0 0 14px rgba(245, 197, 66, .55); margin: 6px 0 2px; }
-  .lordcard .sub { color: #e9dfd3; }
-  .lordcard .tag.lord { margin-left: 0; font-size: .8rem; }
-  @media (max-width: 620px) { .lordcard { background-position: 0 0, 62% center; min-height: 140px; } .lordcard .who { font-size: 1.4rem; } }
   tr.leader { background: linear-gradient(90deg, rgba(245, 197, 66, .18), rgba(224, 112, 42, .07) 50%, transparent 90%); }
   tr.leader td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
   tr.leader .rank1 { color: var(--gold); text-shadow: 0 0 10px rgba(245, 197, 66, .7); }
@@ -202,7 +191,7 @@ const RING_SVG = `<svg class="ring" viewBox="0 0 24 24" role="img" aria-label="P
   <stop offset="1" stop-color="#b8860b"/></linearGradient></defs>
   <ellipse cx="12" cy="13" rx="8.2" ry="7.2" fill="none" stroke="url(#gold)" stroke-width="3.4"/>
   <path d="M6.2 9.6 A7 6 0 0 1 12 6.6" fill="none" stroke="#fffbe0" stroke-width="1.1" stroke-linecap="round" opacity=".9"/></svg>`;
-const RING = `<img class="ring-img" src="prsten-ikona.jpg" alt="Prsten moci" title="Prsten moci – první místo v žebříčku" onerror="this.outerHTML=RING_SVG">`;
+const RING = `<img class="ring-img" src="prsten-ikona.png" alt="Prsten moci" title="Prsten moci – první místo v žebříčku" onerror="this.outerHTML=RING_SVG">`;
 
 // ---------- Ladder table ----------
 function viewTable() {
@@ -229,14 +218,7 @@ function viewTable() {
       <td class="hide-sm muted">${relDay(p.lastPlayed)}</td></tr>`;
   }).join("");
   const hidden = D.players.filter(p => p.inactive || p.retired).length;
-  const top = rows.find(r => r.rank === 1);
-  const lord = top ? (() => {
-    const st = seasonStat(top.p, cur);
-    return `<a class="lordcard" href="#hrac/${encodeURIComponent(top.p.id)}"><span class="tag lord">pán prstenu</span>
-      <div class="who">${esc(top.p.name)}</div>
-      <div class="sub">Elo ${top.p.rating} · ${partie(top.p.games)}${st ? ` · sezóna ${signed(st.change)}` : ""}</div></a>`;
-  })() : "";
-  return `${lord}<div class="controls">
+  return `<div class="controls">
       <span>Pořadí podle Elo · do pořadí po odehrání ${partie(D.settings.provisionalGames)}</span>
       ${hidden ? `<label><input type="checkbox" id="showAll" ${showAll ? "checked" : ""}> zobrazit neaktivní (${hidden})</label>` : ""}
     </div>
