@@ -135,7 +135,7 @@
       "whiteChange" : -25
     }
   ],
-  "generated" : "2026-11-19T18:25:01Z",
+  "generated" : "2026-11-19T22:54:26Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
@@ -386,6 +386,5 @@
     "provisionalGames" : 5,
     "seasonMinGames" : 5,
     "startRating" : 1000
-  },
-  "timeControl" : "10+0"
+  }
 }
