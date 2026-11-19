@@ -2,11 +2,17 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
+<meta name="ect-template" content="2">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Šachový žebříček</title>
 <meta name="description" content="Otevřený hospodský šachový žebříček – podzimní sezóna 2026">
 <meta property="og:title" content="Šachový žebříček">
 <meta property="og:description" content="Otevřený hospodský šachový žebříček – podzimní sezóna 2026">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://enick3312.github.io/zebricek_sachy/">
+<meta property="og:image" content="https://enick3312.github.io/zebricek_sachy/podzim.jpg">
+<meta property="og:image:alt" content="Šachový žebříček">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%99%9E%3C/text%3E%3C/svg%3E">
 <style>
   /* Always dark: black, ember orange and gold (the season colour is set from the data). */
@@ -48,6 +54,12 @@
   .rank1 { color: var(--season); }
   .elo { font-weight: 700; }
   .plus { color: var(--win); font-weight: 600; }
+  .lastnight h2 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .lastnight h2 small { color: var(--muted); font-weight: 400; font-size: .85rem; }
+  .nightfacts { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+  .nightfact { background: var(--chip); border-radius: 999px; padding: 4px 11px; font-size: .9rem; }
+  .nightfact .k { color: var(--muted); }
+  .nightfact a { color: var(--ink); font-weight: 600; text-decoration: none; }
   .minus { color: var(--loss); font-weight: 600; }
   .muted { color: var(--muted); }
   .tag { display: inline-block; font-size: .72rem; font-weight: 700; padding: 1px 7px; border-radius: 999px; margin-left: 6px;
@@ -247,7 +259,7 @@ function viewTable() {
       <td class="hide-sm muted" ${p.lastPlayed ? `title="${dateLong(new Date(p.lastPlayed))} v ${timeOf(new Date(p.lastPlayed))}"` : ""}>${relDay(p.lastPlayed)}</td></tr>`;
   }).join("");
   const hidden = D.players.filter(p => p.inactive || p.retired).length;
-  return `<div class="controls">
+  return viewLastEvening() + `<div class="controls">
       <span>Seřazeno podle Elo · do pořadí se počítají hráči s nejméně ${D.settings.provisionalGames} ${D.settings.provisionalGames === 1 ? "partií" : "partiemi"}</span>
       ${hidden ? `<label><input type="checkbox" id="showAll" ${showAll ? "checked" : ""}> zobrazit neaktivní (${hidden})</label>` : ""}
     </div>
@@ -256,6 +268,52 @@ function viewTable() {
       <th class="n hide-sm">V–R–P</th><th class="hide-sm">Forma</th><th class="hide-sm">Naposledy</th></tr></thead><tbody>${body}</tbody></table>`
       : `<p class="muted" style="padding:10px">Zatím žádní hráči.</p>`}
     </div>`;
+}
+
+// ---------- Last evening (top of the ranking) ----------
+function viewLastEvening() {
+  if (!D.games.length) return "";
+  const last = Math.max(...D.games.map(g => eveningKey(g.date).getTime()));
+  const tonight = D.games.filter(g => eveningKey(g.date).getTime() === last);
+  const change = new Map();
+  for (const g of tonight) {
+    change.set(g.white, (change.get(g.white) || 0) + (g.rated ? g.whiteChange : 0));
+    change.set(g.black, (change.get(g.black) || 0) + (g.rated ? g.blackChange : 0));
+  }
+  const people = [...change.keys()].sort((a, b) => change.get(b) - change.get(a));
+  const first = new Map();
+  for (const g of D.games) for (const id of [g.white, g.black]) {
+    const e = eveningKey(g.date).getTime();
+    if (!first.has(id) || e < first.get(id)) first.set(id, e);
+  }
+  const newcomers = people.filter(id => first.get(id) === last);
+
+  // "Dnes večer", "Včera večer" or "čtvrtek 13. 11."
+  const days = Math.round((eveningKey(new Date().toISOString()).getTime() - last) / 86400000);
+  const day = new Date(last);
+  const when = days === 0 ? "Dnes večer" : days === 1 ? "Včera večer"
+    : cap(new Intl.DateTimeFormat("cs-CZ", { weekday: "long" }).format(day)) + ` ${day.getDate()}. ${day.getMonth() + 1}.`;
+
+  const facts = [`<span class="nightfact">${partie(tonight.length)} · ${people.length} ${plural(people.length, "hráč", "hráči", "hráčů")}</span>`];
+  const best = people[0], worst = people[people.length - 1];
+  if (best && change.get(best) > 0)
+    facts.push(`<span class="nightfact"><span class="k">Největší zisk:</span> ${playerLink(best)} <span class="plus">${signed(change.get(best))}</span></span>`);
+  if (worst && worst !== best && change.get(worst) < 0)
+    facts.push(`<span class="nightfact"><span class="k">Největší ztráta:</span> ${playerLink(worst)} <span class="minus">${signed(change.get(worst))}</span></span>`);
+  // The biggest win against a stronger opponent (at least 50 Elo).
+  let upset = null;
+  for (const g of tonight) {
+    const gap = g.result === "1-0" ? g.blackBefore - g.whiteBefore : g.result === "0-1" ? g.whiteBefore - g.blackBefore : 0;
+    if (gap >= 50 && (!upset || gap > upset.gap)) upset = { g, gap };
+  }
+  if (upset) {
+    const g = upset.g;
+    facts.push(`<span class="nightfact"><span class="k">Překvapení:</span> ${playerLink(g.white)} – ${playerLink(g.black)} ${g.result.replace("-", "–")}
+      <span class="k">(rozdíl ${upset.gap} Elo)</span></span>`);
+  }
+  if (newcomers.length)
+    facts.push(`<span class="nightfact"><span class="k">Nově v žebříčku:</span> ${newcomers.map(playerLink).join(", ")}</span>`);
+  return `<div class="card lastnight"><h2>${when} <small>poslední herní večer</small></h2><div class="nightfacts">${facts.join("")}</div></div>`;
 }
 
 // ---------- Games ----------
@@ -561,10 +619,19 @@ if (GOATCOUNTER && location.hostname.endsWith("github.io")) {
   sc.onload = () => { if (lastView) countView(lastView); };  // the page drew before the counter loaded
   document.head.appendChild(sc);
 }
+// Visits from the QR code arrive as ?ref=qr: the first count reports "qr" as where they came from, then the tag is
+// removed from the address so a link shared onwards doesn't count as a QR scan again.
+let visitRef = new URLSearchParams(location.search).get("ref");
 function countView(tab) {
   const gc = window.goatcounter;
   if (!gc || typeof gc.count !== "function") return;
-  gc.count({ path: location.pathname + "#" + tab, title: { zebricek: "Žebříček", partie: "Partie", vyvoj: "Vývoj", sezony: "Sezóny", hrac: "Hráč" }[tab] || tab });
+  const vars = { path: location.pathname + "#" + tab, title: { zebricek: "Žebříček", partie: "Partie", vyvoj: "Vývoj", sezony: "Sezóny", hrac: "Hráč" }[tab] || tab };
+  if (visitRef) {
+    vars.referrer = visitRef;
+    visitRef = null;
+    history.replaceState(null, "", location.pathname + location.hash);
+  }
+  gc.count(vars);
 }
 
 fetch("zebricek.json?v=" + Date.now(), { cache: "no-store" })
@@ -578,7 +645,7 @@ window.addEventListener("load", () => {
   btn.hidden = false;
   btn.onclick = () => {
     const q = qrcode(0, "M");
-    q.addData(location.origin + location.pathname);
+    q.addData(location.origin + location.pathname + "?ref=qr");  // GoatCounter shows these as coming from "qr"
     q.make();
     $("#qrimg").innerHTML = q.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
     box.style.display = "flex";
