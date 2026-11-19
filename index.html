@@ -494,7 +494,7 @@ function render() {
   const v = h.startsWith("hrac/") ? "hrac" : (["partie", "vyvoj", "sezony"].includes(h) ? h : "zebricek");
   // The graph draws itself in when you open the tab (not when you tap a name or turn the phone).
   trendAnimate = v === "vyvoj" && lastView !== "vyvoj";
-  lastView = v;
+  if (v !== lastView) { lastView = v; countView(v); }
   document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.v === v));
   $("#main").innerHTML = v === "hrac" ? viewPlayer(h.slice(5)) : v === "partie" ? viewGames() : v === "vyvoj" ? viewTrend()
     : v === "sezony" ? viewSeasons() : viewTable();
@@ -547,6 +547,24 @@ function init() {
     }, 150);
   });
   render();
+}
+
+// Visitor stats (GoatCounter: no cookies, no personal data), only on the public github.io page, so local copies and
+// previews stay uncounted. Each tab counts as its own page; all player pages count together as "hrac".
+const GOATCOUNTER = "zebricek-sachy";
+if (GOATCOUNTER && location.hostname.endsWith("github.io")) {
+  window.goatcounter = { no_onload: true };
+  const sc = document.createElement("script");
+  sc.async = true;
+  sc.src = "https://gc.zgo.at/count.js";
+  sc.dataset.goatcounter = `https://${GOATCOUNTER}.goatcounter.com/count`;
+  sc.onload = () => { if (lastView) countView(lastView); };  // the page drew before the counter loaded
+  document.head.appendChild(sc);
+}
+function countView(tab) {
+  const gc = window.goatcounter;
+  if (!gc || typeof gc.count !== "function") return;
+  gc.count({ path: location.pathname + "#" + tab, title: { zebricek: "Žebříček", partie: "Partie", vyvoj: "Vývoj", sezony: "Sezóny", hrac: "Hráč" }[tab] || tab });
 }
 
 fetch("zebricek.json?v=" + Date.now(), { cache: "no-store" })
