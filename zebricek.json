@@ -135,7 +135,7 @@
       "whiteChange" : -25
     }
   ],
-  "generated" : "2026-11-20T17:52:15Z",
+  "generated" : "2026-11-20T20:23:00Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
@@ -370,6 +370,28 @@
       ],
       "startRating" : 1000,
       "wins" : 1
+    },
+    {
+      "draws" : 0,
+      "form" : [
+
+      ],
+      "games" : 0,
+      "history" : [
+
+      ],
+      "id" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
+      "inactive" : false,
+      "losses" : 0,
+      "name" : "Petr Hájek",
+      "provisional" : true,
+      "rating" : 1000,
+      "retired" : false,
+      "seasons" : [
+
+      ],
+      "startRating" : 1000,
+      "wins" : 0
     }
   ],
   "seasonMode" : "quarterly",
