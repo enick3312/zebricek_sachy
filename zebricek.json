@@ -169,22 +169,34 @@
       "white" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
       "whiteBefore" : 1000,
       "whiteChange" : -21
+    },
+    {
+      "black" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
+      "blackBefore" : 1020,
+      "blackChange" : -22,
+      "date" : "2026-11-20T23:08:42Z",
+      "rated" : true,
+      "result" : "1-0",
+      "season" : 20262,
+      "white" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
+      "whiteBefore" : 979,
+      "whiteChange" : 22
     }
   ],
-  "generated" : "2026-11-20T22:43:52Z",
+  "generated" : "2026-11-20T23:09:02Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
     {
       "draws" : 1,
       "form" : [
-        0,
         1,
         1,
         1,
-        0.5
+        0.5,
+        0
       ],
-      "games" : 10,
+      "games" : 11,
       "history" : [
         {
           "date" : "2026-11-13T20:30:20Z",
@@ -225,21 +237,25 @@
         {
           "date" : "2026-11-20T21:01:11Z",
           "rating" : 1020
+        },
+        {
+          "date" : "2026-11-20T23:08:42Z",
+          "rating" : 998
         }
       ],
       "id" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
       "inactive" : false,
-      "lastPlayed" : "2026-11-20T21:01:11Z",
-      "losses" : 4,
+      "lastPlayed" : "2026-11-20T23:08:42Z",
+      "losses" : 5,
       "name" : "Tomáš Gabriel",
       "provisional" : false,
       "rank" : 2,
-      "rating" : 1020,
+      "rating" : 998,
       "retired" : false,
       "seasons" : [
         {
-          "change" : 20,
-          "games" : 10,
+          "change" : -2,
+          "games" : 11,
           "season" : 20262
         }
       ],
@@ -460,32 +476,37 @@
     {
       "draws" : 0,
       "form" : [
-        0
+        0,
+        1
       ],
-      "games" : 1,
+      "games" : 2,
       "history" : [
         {
           "date" : "2026-11-20T22:43:26Z",
           "rating" : 979
+        },
+        {
+          "date" : "2026-11-20T23:08:42Z",
+          "rating" : 1001
         }
       ],
       "id" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
       "inactive" : false,
-      "lastPlayed" : "2026-11-20T22:43:26Z",
+      "lastPlayed" : "2026-11-20T23:08:42Z",
       "losses" : 1,
       "name" : "Jiří Baudis",
       "provisional" : true,
-      "rating" : 979,
+      "rating" : 1001,
       "retired" : false,
       "seasons" : [
         {
-          "change" : -21,
-          "games" : 1,
+          "change" : 1,
+          "games" : 2,
           "season" : 20262
         }
       ],
       "startRating" : 1000,
-      "wins" : 0
+      "wins" : 1
     }
   ],
   "seasonMode" : "quarterly",
