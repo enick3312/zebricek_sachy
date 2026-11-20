@@ -181,9 +181,21 @@
       "white" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
       "whiteBefore" : 979,
       "whiteChange" : 22
+    },
+    {
+      "black" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
+      "blackBefore" : 1050,
+      "blackChange" : 17,
+      "date" : "2026-11-20T23:25:38Z",
+      "rated" : true,
+      "result" : "0-1",
+      "season" : 20262,
+      "white" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
+      "whiteBefore" : 1004,
+      "whiteChange" : -17
     }
   ],
-  "generated" : "2026-11-20T23:09:02Z",
+  "generated" : "2026-11-20T23:26:13Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
@@ -342,11 +354,11 @@
       "form" : [
         1,
         1,
-        1,
         0,
+        1,
         1
       ],
-      "games" : 5,
+      "games" : 6,
       "history" : [
         {
           "date" : "2026-11-13T22:15:23Z",
@@ -367,26 +379,30 @@
         {
           "date" : "2026-11-20T21:37:53Z",
           "rating" : 1050
+        },
+        {
+          "date" : "2026-11-20T23:25:38Z",
+          "rating" : 1067
         }
       ],
       "id" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
       "inactive" : false,
-      "lastPlayed" : "2026-11-20T21:37:53Z",
+      "lastPlayed" : "2026-11-20T23:25:38Z",
       "losses" : 1,
       "name" : "Mikita Elinov",
       "provisional" : false,
       "rank" : 1,
-      "rating" : 1050,
+      "rating" : 1067,
       "retired" : false,
       "seasons" : [
         {
-          "change" : 50,
-          "games" : 5,
+          "change" : 67,
+          "games" : 6,
           "season" : 20262
         }
       ],
       "startRating" : 1000,
-      "wins" : 4
+      "wins" : 5
     },
     {
       "draws" : 0,
@@ -438,9 +454,10 @@
       "form" : [
         0.5,
         0,
-        1
+        1,
+        0
       ],
-      "games" : 3,
+      "games" : 4,
       "history" : [
         {
           "date" : "2026-11-20T21:01:11Z",
@@ -453,20 +470,24 @@
         {
           "date" : "2026-11-20T22:43:26Z",
           "rating" : 1004
+        },
+        {
+          "date" : "2026-11-20T23:25:38Z",
+          "rating" : 987
         }
       ],
       "id" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
       "inactive" : false,
-      "lastPlayed" : "2026-11-20T22:43:26Z",
-      "losses" : 1,
+      "lastPlayed" : "2026-11-20T23:25:38Z",
+      "losses" : 2,
       "name" : "Petr Hájek",
       "provisional" : true,
-      "rating" : 1004,
+      "rating" : 987,
       "retired" : false,
       "seasons" : [
         {
-          "change" : 4,
-          "games" : 3,
+          "change" : -13,
+          "games" : 4,
           "season" : 20262
         }
       ],
