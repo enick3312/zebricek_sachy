@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="ect-template" content="2">
+<meta name="ect-template" content="3">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Šachový žebříček</title>
 <meta name="description" content="Otevřený hospodský šachový žebříček – podzimní sezóna 2026">
@@ -104,12 +104,10 @@
   tr.leader td:first-child { box-shadow: inset 3px 0 0 var(--gold); }
   tr.leader .rank1 { color: var(--gold); text-shadow: 0 0 10px rgba(245, 197, 66, .7); }
   svg.trend { width: 100%; height: auto; display: block; overflow: visible; }
-  svg.trend.draw .ln { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw .9s cubic-bezier(.3,.6,.3,1) forwards; }
-  svg.trend.draw .dt { opacity: 0; animation: fadein .35s ease-out .75s forwards; }
-  @keyframes draw { to { stroke-dashoffset: 0; } }
+  svg.trend.draw .dot, svg.trend.draw .dt { opacity: 0; animation: fadein .3s ease-out forwards; }
   @keyframes fadein { to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) {
-    svg.trend.draw .ln, svg.trend.draw .dt { animation: none; stroke-dasharray: none; stroke-dashoffset: 0; opacity: 1; }
+    svg.trend.draw .dot, svg.trend.draw .dt { animation: none; opacity: 1; }
   }
   .legend { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 10px; }
   .legend button { font: inherit; font-size: .9rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
@@ -438,14 +436,24 @@ function viewTrend() {
       <path d="${monoPath(P)} L${x(n).toFixed(1)},${H - B} L${x(gs.from).toFixed(1)},${H - B} Z" fill="url(#glow)"/>`;
   }
 
+  // Draw-in when the tab opens: the lines are revealed left to right, half a second per evening; each dot appears as
+  // the sweep reaches its evening and the names fade in at the end. Not on taps or resizes; none with reduced motion.
+  const STEP = 0.5;
+  const motion = trendAnimate && !(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+  // The sweep is driven by startReveal() (requestAnimationFrame): SMIL <animate> starts on the document's clock, not when
+  // the graph is inserted, so it jumped straight to the end.
+  const reveal = motion ? `<defs><clipPath id="reveal"><rect x="0" y="0" height="${H}" width="${x(0).toFixed(1)}"
+      data-from="${x(0).toFixed(1)}" data-to="${(x(n) + 8).toFixed(1)}" data-dur="${n * STEP}"/></clipPath></defs>` : "";
+  const at = i => motion ? ` style="animation-delay:${(i * STEP).toFixed(1)}s"` : "";
+
   const lines = new Map(people.map(p => {
     const s = series.get(p.id), c = color.get(p.id);
     const faded = trendFocus && trendFocus !== p.id;
     const width = trendFocus === p.id ? 4 : p.id === leader ? 3.5 : 2.5;
     const dots = s.pts.map((v, i) => s.played[i]
-      ? `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${p.id === leader || trendFocus === p.id ? 4.5 : 3.5}" fill="${c}" stroke="var(--card)" stroke-width="1.5"/>` : "").join("");
-    return [p.id, `<g opacity="${faded ? 0.15 : 1}"><path class="ln" pathLength="1" d="${monoPath(s.pts.map((v, i) => [x(i), y(v)]).slice(s.from))}"
-      fill="none" stroke="${c}" stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"/><g class="dt">${dots}</g></g>`];
+      ? `<circle class="dot"${at(i)} cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${p.id === leader || trendFocus === p.id ? 4.5 : 3.5}" fill="${c}" stroke="var(--card)" stroke-width="1.5"/>` : "").join("");
+    return [p.id, `<g opacity="${faded ? 0.15 : 1}"><path d="${monoPath(s.pts.map((v, i) => [x(i), y(v)]).slice(s.from))}"
+      fill="none" stroke="${c}" stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"/>${dots}</g>`];
   }));
 
   // Name and Elo at the end of every line, nudged apart so they never overlap.
@@ -458,7 +466,7 @@ function viewTrend() {
   }
   const labels = tags.map(t => {
     const faded = trendFocus && trendFocus !== t.p.id, c = color.get(t.p.id), bold = t.p.id === leader || trendFocus === t.p.id;
-    return `<g class="dt"><g opacity="${faded ? 0.3 : 1}">
+    return `<g class="dt"${at(n)}><g opacity="${faded ? 0.3 : 1}">
       ${Math.abs(t.ly - t.y) > 3 ? `<path d="M${x(n) + 4},${t.y} L${x(n) + 10},${t.ly}" stroke="${c}" stroke-opacity=".6" fill="none"/>` : ""}
       <text x="${x(n) + 13}" y="${t.ly + 4}" font-size="13" fill="${c}" font-weight="${bold ? 700 : 500}">${esc(short.get(t.p.id))}
       <tspan fill="var(--muted)" font-weight="400"> ${t.p.rating}</tspan></text></g></g>`;
@@ -469,7 +477,7 @@ function viewTrend() {
   const legend = people.map(p => `<button class="${trendFocus === p.id ? "on" : ""}" data-id="${esc(p.id)}">
       <i style="background:${color.get(p.id)}"></i>${esc(p.name)} <span class="muted">${p.rating}</span></button>`).join("");
   return `<div class="card"><h2>Vývoj Elo všech hráčů</h2>
-    <svg class="trend${trendAnimate ? " draw" : ""}" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Vývoj Elo v čase">${grid}${ticks}${glow}${order.map(p => lines.get(p.id)).join("")}${labels}</svg>
+    <svg class="trend${motion ? " draw" : ""}" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Vývoj Elo v čase">${grid}${ticks}${reveal}<g${motion ? ' clip-path="url(#reveal)"' : ""}>${glow}${order.map(p => lines.get(p.id)).join("")}</g>${labels}</svg>
     <div class="legend" id="legend">${legend}</div>
     <p class="muted" style="font-size:.85rem;margin-bottom:0">Jeden sloupec = jeden herní večer. Tečka znamená, že hráč ten večer hrál. Klepnutím na jméno zvýrazníte jeho čáru.</p></div>`;
 }
@@ -547,6 +555,21 @@ function viewPlayer(id) {
 }
 
 // ---------- Shell ----------
+// Widens the graph's clip from the first to the last evening at a constant speed (viewTrend sets the timing).
+let revealFrame = 0;
+function startReveal() {
+  cancelAnimationFrame(revealFrame);
+  const r = document.querySelector("#reveal rect");
+  if (!r) return;
+  const from = +r.dataset.from, to = +r.dataset.to, ms = +r.dataset.dur * 1000, t0 = performance.now();
+  const tick = now => {
+    const k = Math.min(1, (now - t0) / ms);
+    r.setAttribute("width", (from + (to - from) * k).toFixed(1));
+    if (k < 1) revealFrame = requestAnimationFrame(tick);
+  };
+  revealFrame = requestAnimationFrame(tick);
+}
+
 function render() {
   const h = decodeURIComponent(location.hash.replace(/^#/, ""));
   const v = h.startsWith("hrac/") ? "hrac" : (["partie", "vyvoj", "sezony"].includes(h) ? h : "zebricek");
@@ -556,6 +579,7 @@ function render() {
   document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.v === v));
   $("#main").innerHTML = v === "hrac" ? viewPlayer(h.slice(5)) : v === "partie" ? viewGames() : v === "vyvoj" ? viewTrend()
     : v === "sezony" ? viewSeasons() : viewTable();
+  startReveal();
   document.querySelectorAll("#legend button").forEach(b => b.onclick = () => {
     trendFocus = trendFocus === b.dataset.id ? null : b.dataset.id;
     render();
