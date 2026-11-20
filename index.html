@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="ect-template" content="3">
+<meta name="ect-template" content="4">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Šachový žebříček</title>
 <meta name="description" content="Otevřený hospodský šachový žebříček – podzimní sezóna 2026">
@@ -38,6 +38,10 @@
            font-size: .85rem; background: color-mix(in srgb, var(--season) 18%, transparent); color: var(--season); }
   nav { display: flex; gap: 6px; padding: 10px 16px; position: sticky; top: 0; background: var(--bg); z-index: 5;
         border-bottom: 1px solid var(--line); }
+  nav { overflow-x: auto; scrollbar-width: none; }
+  nav::-webkit-scrollbar { display: none; }
+  nav a { flex-shrink: 0; white-space: nowrap; }
+  h2.hist { font-size: 1.05rem; margin: 22px 2px 10px; color: var(--muted); }
   nav a { padding: 7px 14px; border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: .95rem; }
   nav a.on { background: var(--season); color: #fff; }
   main { padding: 16px; }
@@ -54,6 +58,7 @@
   .rank1 { color: var(--season); }
   .elo { font-weight: 700; }
   .plus { color: var(--win); font-weight: 600; }
+  .lastnight { border-left: 3px solid var(--sc, var(--season)); }
   .lastnight h2 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .lastnight h2 small { color: var(--muted); font-weight: 400; font-size: .85rem; }
   .nightfacts { display: flex; flex-wrap: wrap; gap: 6px 8px; }
@@ -137,6 +142,7 @@
 </div></header>
 <nav class="wrap" id="nav">
   <a href="#zebricek" data-v="zebricek">Žebříček</a>
+  <a href="#novinky" data-v="novinky">Novinky</a>
   <a href="#partie" data-v="partie">Partie</a>
   <a href="#vyvoj" data-v="vyvoj">Vývoj</a>
   <a href="#sezony" data-v="sezony">Sezóny</a>
@@ -257,7 +263,7 @@ function viewTable() {
       <td class="hide-sm muted" ${p.lastPlayed ? `title="${dateLong(new Date(p.lastPlayed))} v ${timeOf(new Date(p.lastPlayed))}"` : ""}>${relDay(p.lastPlayed)}</td></tr>`;
   }).join("");
   const hidden = D.players.filter(p => p.inactive || p.retired).length;
-  return viewLastEvening() + `<div class="controls">
+  return `<div class="controls">
       <span>Seřazeno podle Elo · do pořadí se počítají hráči s nejméně ${D.settings.provisionalGames} ${D.settings.provisionalGames === 1 ? "partií" : "partiemi"}</span>
       ${hidden ? `<label><input type="checkbox" id="showAll" ${showAll ? "checked" : ""}> zobrazit neaktivní (${hidden})</label>` : ""}
     </div>
@@ -268,30 +274,17 @@ function viewTable() {
     </div>`;
 }
 
-// ---------- Last evening (top of the ranking) ----------
-function viewLastEvening() {
-  if (!D.games.length) return "";
-  const last = Math.max(...D.games.map(g => eveningKey(g.date).getTime()));
-  const tonight = D.games.filter(g => eveningKey(g.date).getTime() === last);
+// ---------- Novinky: "Poslední události" (the latest game evening) and the history of every earlier evening ----------
+// What happened on one evening: games and players, biggest gain and loss, the biggest upset, newcomers.
+function eveningFacts(key, firstEvening) {
+  const tonight = D.games.filter(g => eveningKey(g.date).getTime() === key);
   const change = new Map();
   for (const g of tonight) {
     change.set(g.white, (change.get(g.white) || 0) + (g.rated ? g.whiteChange : 0));
     change.set(g.black, (change.get(g.black) || 0) + (g.rated ? g.blackChange : 0));
   }
   const people = [...change.keys()].sort((a, b) => change.get(b) - change.get(a));
-  const first = new Map();
-  for (const g of D.games) for (const id of [g.white, g.black]) {
-    const e = eveningKey(g.date).getTime();
-    if (!first.has(id) || e < first.get(id)) first.set(id, e);
-  }
-  const newcomers = people.filter(id => first.get(id) === last);
-
-  // "Dnes večer", "Včera večer" or "čtvrtek 13. 11."
-  const days = Math.round((eveningKey(new Date().toISOString()).getTime() - last) / 86400000);
-  const day = new Date(last);
-  const when = days === 0 ? "Dnes večer" : days === 1 ? "Včera večer"
-    : cap(new Intl.DateTimeFormat("cs-CZ", { weekday: "long" }).format(day)) + ` ${day.getDate()}. ${day.getMonth() + 1}.`;
-
+  const newcomers = people.filter(id => firstEvening.get(id) === key);
   const facts = [`<span class="nightfact">${partie(tonight.length)} · ${people.length} ${plural(people.length, "hráč", "hráči", "hráčů")}</span>`];
   const best = people[0], worst = people[people.length - 1];
   if (best && change.get(best) > 0)
@@ -311,10 +304,31 @@ function viewLastEvening() {
   }
   if (newcomers.length)
     facts.push(`<span class="nightfact"><span class="k">Nově v žebříčku:</span> ${newcomers.map(playerLink).join(", ")}</span>`);
-  return `<div class="card lastnight"><h2>${when} <small>poslední herní večer</small></h2><div class="nightfacts">${facts.join("")}</div></div>`;
+  return facts.join("");
 }
 
-// ---------- Games ----------
+function viewNews() {
+  if (!D.games.length) return `<div class="card muted">Zatím se nehrálo.</div>`;
+  const firstEvening = new Map();
+  for (const g of D.games) for (const id of [g.white, g.black]) {
+    const e = eveningKey(g.date).getTime();
+    if (!firstEvening.has(id) || e < firstEvening.get(id)) firstEvening.set(id, e);
+  }
+  const evenings = [...new Set(D.games.map(g => eveningKey(g.date).getTime()))].sort((a, b) => b - a);
+  const card = (key, title, sub) => {
+    const s = seasonInfo(D.games.find(g => eveningKey(g.date).getTime() === key).season);
+    return `<div class="card lastnight" style="--sc:${s.color}"><h2>${title} <small>${sub}</small></h2>
+      <div class="nightfacts">${eveningFacts(key, firstEvening)}</div></div>`;
+  };
+  // "dnes večer", "včera večer" or the date of the latest evening.
+  const latest = evenings[0];
+  const days = Math.round((eveningKey(new Date().toISOString()).getTime() - latest) / 86400000);
+  const when = days === 0 ? "dnes večer" : days === 1 ? "včera večer" : dateLong(new Date(latest));
+  return card(latest, "Poslední události", when)
+    + (evenings.length > 1 ? `<h2 class="hist">Historie herních večerů</h2>`
+       + evenings.slice(1).map(k => card(k, cap(dateLong(new Date(k))), "")).join("") : "");
+}
+
 function gameRow(g, withTime = true) {
   const side = (id, before, change, left) => `<div class="side ${left ? "left" : ""}">
       ${left ? "" : playerLink(id)} <span class="muted">${before}</span>
@@ -572,12 +586,12 @@ function startReveal() {
 
 function render() {
   const h = decodeURIComponent(location.hash.replace(/^#/, ""));
-  const v = h.startsWith("hrac/") ? "hrac" : (["partie", "vyvoj", "sezony"].includes(h) ? h : "zebricek");
+  const v = h.startsWith("hrac/") ? "hrac" : (["novinky", "partie", "vyvoj", "sezony"].includes(h) ? h : "zebricek");
   // The graph draws itself in when you open the tab (not when you tap a name or turn the phone).
   trendAnimate = v === "vyvoj" && lastView !== "vyvoj";
   if (v !== lastView) { lastView = v; countView(v); }
   document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.v === v));
-  $("#main").innerHTML = v === "hrac" ? viewPlayer(h.slice(5)) : v === "partie" ? viewGames() : v === "vyvoj" ? viewTrend()
+  $("#main").innerHTML = v === "hrac" ? viewPlayer(h.slice(5)) : v === "novinky" ? viewNews() : v === "partie" ? viewGames() : v === "vyvoj" ? viewTrend()
     : v === "sezony" ? viewSeasons() : viewTable();
   startReveal();
   document.querySelectorAll("#legend button").forEach(b => b.onclick = () => {
