@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="ect-template" content="4">
+<meta name="ect-template" content="5">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Šachový žebříček</title>
 <meta name="description" content="Otevřený hospodský šachový žebříček – podzimní sezóna 2026">
@@ -320,11 +320,9 @@ function viewNews() {
     return `<div class="card lastnight" style="--sc:${s.color}"><h2>${title} <small>${sub}</small></h2>
       <div class="nightfacts">${eveningFacts(key, firstEvening)}</div></div>`;
   };
-  // "dnes večer", "včera večer" or the date of the latest evening.
+  // Day and date of the latest evening, e.g. "středa 18. listopadu 2026" (user: not "včera večer").
   const latest = evenings[0];
-  const days = Math.round((eveningKey(new Date().toISOString()).getTime() - latest) / 86400000);
-  const when = days === 0 ? "dnes večer" : days === 1 ? "včera večer" : dateLong(new Date(latest));
-  return card(latest, "Poslední události", when)
+  return card(latest, "Poslední události", dateLong(new Date(latest)))
     + (evenings.length > 1 ? `<h2 class="hist">Historie herních večerů</h2>`
        + evenings.slice(1).map(k => card(k, cap(dateLong(new Date(k))), "")).join("") : "");
 }
