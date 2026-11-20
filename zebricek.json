@@ -157,9 +157,21 @@
       "white" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
       "whiteBefore" : 1032,
       "whiteChange" : 18
+    },
+    {
+      "black" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
+      "blackBefore" : 983,
+      "blackChange" : 21,
+      "date" : "2026-11-20T22:43:26Z",
+      "rated" : true,
+      "result" : "0-1",
+      "season" : 20262,
+      "white" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
+      "whiteBefore" : 1000,
+      "whiteChange" : -21
     }
   ],
-  "generated" : "2026-11-20T21:38:29Z",
+  "generated" : "2026-11-20T22:43:52Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
@@ -409,9 +421,10 @@
       "draws" : 1,
       "form" : [
         0.5,
-        0
+        0,
+        1
       ],
-      "games" : 2,
+      "games" : 3,
       "history" : [
         {
           "date" : "2026-11-20T21:01:11Z",
@@ -420,20 +433,54 @@
         {
           "date" : "2026-11-20T21:37:53Z",
           "rating" : 983
+        },
+        {
+          "date" : "2026-11-20T22:43:26Z",
+          "rating" : 1004
         }
       ],
       "id" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
       "inactive" : false,
-      "lastPlayed" : "2026-11-20T21:37:53Z",
+      "lastPlayed" : "2026-11-20T22:43:26Z",
       "losses" : 1,
       "name" : "Petr Hájek",
       "provisional" : true,
-      "rating" : 983,
+      "rating" : 1004,
       "retired" : false,
       "seasons" : [
         {
-          "change" : -17,
-          "games" : 2,
+          "change" : 4,
+          "games" : 3,
+          "season" : 20262
+        }
+      ],
+      "startRating" : 1000,
+      "wins" : 1
+    },
+    {
+      "draws" : 0,
+      "form" : [
+        0
+      ],
+      "games" : 1,
+      "history" : [
+        {
+          "date" : "2026-11-20T22:43:26Z",
+          "rating" : 979
+        }
+      ],
+      "id" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
+      "inactive" : false,
+      "lastPlayed" : "2026-11-20T22:43:26Z",
+      "losses" : 1,
+      "name" : "Jiří Baudis",
+      "provisional" : true,
+      "rating" : 979,
+      "retired" : false,
+      "seasons" : [
+        {
+          "change" : -21,
+          "games" : 1,
           "season" : 20262
         }
       ],
