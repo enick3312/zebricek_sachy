@@ -133,22 +133,34 @@
       "white" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
       "whiteBefore" : 1057,
       "whiteChange" : -25
+    },
+    {
+      "black" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
+      "blackBefore" : 1000,
+      "blackChange" : 1,
+      "date" : "2026-11-20T21:01:11Z",
+      "rated" : true,
+      "result" : "½-½",
+      "season" : 20262,
+      "white" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
+      "whiteBefore" : 1021,
+      "whiteChange" : -1
     }
   ],
-  "generated" : "2026-11-20T20:23:00Z",
+  "generated" : "2026-11-20T21:02:44Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
     {
-      "draws" : 0,
+      "draws" : 1,
       "form" : [
         0,
-        0,
         1,
         1,
-        1
+        1,
+        0.5
       ],
-      "games" : 9,
+      "games" : 10,
       "history" : [
         {
           "date" : "2026-11-13T20:30:20Z",
@@ -185,21 +197,25 @@
         {
           "date" : "2026-11-18T20:54:09Z",
           "rating" : 1021
+        },
+        {
+          "date" : "2026-11-20T21:01:11Z",
+          "rating" : 1020
         }
       ],
       "id" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
       "inactive" : false,
-      "lastPlayed" : "2026-11-18T20:54:09Z",
+      "lastPlayed" : "2026-11-20T21:01:11Z",
       "losses" : 4,
       "name" : "Tomáš Gabriel",
       "provisional" : false,
       "rank" : 1,
-      "rating" : 1021,
+      "rating" : 1020,
       "retired" : false,
       "seasons" : [
         {
-          "change" : 21,
-          "games" : 9,
+          "change" : 20,
+          "games" : 10,
           "season" : 20262
         }
       ],
@@ -372,23 +388,31 @@
       "wins" : 1
     },
     {
-      "draws" : 0,
+      "draws" : 1,
       "form" : [
-
+        0.5
       ],
-      "games" : 0,
+      "games" : 1,
       "history" : [
-
+        {
+          "date" : "2026-11-20T21:01:11Z",
+          "rating" : 1001
+        }
       ],
       "id" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
       "inactive" : false,
+      "lastPlayed" : "2026-11-20T21:01:11Z",
       "losses" : 0,
       "name" : "Petr Hájek",
       "provisional" : true,
-      "rating" : 1000,
+      "rating" : 1001,
       "retired" : false,
       "seasons" : [
-
+        {
+          "change" : 1,
+          "games" : 1,
+          "season" : 20262
+        }
       ],
       "startRating" : 1000,
       "wins" : 0
