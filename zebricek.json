@@ -241,9 +241,21 @@
       "white" : "7B0AB26D-1CF8-40F0-B769-780A14D773C1",
       "whiteBefore" : 988,
       "whiteChange" : 16
+    },
+    {
+      "black" : "7B0AB26D-1CF8-40F0-B769-780A14D773C1",
+      "blackBefore" : 1004,
+      "blackChange" : -16,
+      "date" : "2026-11-21T21:52:21Z",
+      "rated" : true,
+      "result" : "1-0",
+      "season" : 20262,
+      "white" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
+      "whiteBefore" : 1081,
+      "whiteChange" : 16
     }
   ],
-  "generated" : "2026-11-21T21:03:27Z",
+  "generated" : "2026-11-21T21:56:11Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
@@ -332,9 +344,10 @@
         0,
         0,
         1,
-        1
+        1,
+        0
       ],
-      "games" : 4,
+      "games" : 5,
       "history" : [
         {
           "date" : "2026-11-13T20:30:20Z",
@@ -351,20 +364,25 @@
         {
           "date" : "2026-11-21T21:02:58Z",
           "rating" : 1004
+        },
+        {
+          "date" : "2026-11-21T21:52:21Z",
+          "rating" : 988
         }
       ],
       "id" : "7B0AB26D-1CF8-40F0-B769-780A14D773C1",
       "inactive" : false,
-      "lastPlayed" : "2026-11-21T21:02:58Z",
-      "losses" : 2,
+      "lastPlayed" : "2026-11-21T21:52:21Z",
+      "losses" : 3,
       "name" : "Jan Jirásek",
-      "provisional" : true,
-      "rating" : 1004,
+      "provisional" : false,
+      "rank" : 3,
+      "rating" : 988,
       "retired" : false,
       "seasons" : [
         {
-          "change" : 4,
-          "games" : 4,
+          "change" : -12,
+          "games" : 5,
           "season" : 20262
         }
       ],
@@ -414,13 +432,13 @@
     {
       "draws" : 0,
       "form" : [
-        1,
         0,
+        1,
         1,
         1,
         1
       ],
-      "games" : 7,
+      "games" : 8,
       "history" : [
         {
           "date" : "2026-11-13T22:15:23Z",
@@ -449,26 +467,30 @@
         {
           "date" : "2026-11-21T19:39:00Z",
           "rating" : 1081
+        },
+        {
+          "date" : "2026-11-21T21:52:21Z",
+          "rating" : 1097
         }
       ],
       "id" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
       "inactive" : false,
-      "lastPlayed" : "2026-11-21T19:39:00Z",
+      "lastPlayed" : "2026-11-21T21:52:21Z",
       "losses" : 1,
       "name" : "Mikita Elinov",
       "provisional" : false,
       "rank" : 1,
-      "rating" : 1081,
+      "rating" : 1097,
       "retired" : false,
       "seasons" : [
         {
-          "change" : 81,
-          "games" : 7,
+          "change" : 97,
+          "games" : 8,
           "season" : 20262
         }
       ],
       "startRating" : 1000,
-      "wins" : 6
+      "wins" : 7
     },
     {
       "draws" : 0,
@@ -516,7 +538,7 @@
       "losses" : 6,
       "name" : "Michal Čekan",
       "provisional" : false,
-      "rank" : 3,
+      "rank" : 4,
       "rating" : 909,
       "retired" : false,
       "seasons" : [
