@@ -229,9 +229,21 @@
       "white" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
       "whiteBefore" : 998,
       "whiteChange" : 17
+    },
+    {
+      "black" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
+      "blackBefore" : 925,
+      "blackChange" : -16,
+      "date" : "2026-11-21T21:02:58Z",
+      "rated" : true,
+      "result" : "1-0",
+      "season" : 20262,
+      "white" : "7B0AB26D-1CF8-40F0-B769-780A14D773C1",
+      "whiteBefore" : 988,
+      "whiteChange" : 16
     }
   ],
-  "generated" : "2026-11-21T20:15:52Z",
+  "generated" : "2026-11-21T21:03:27Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
@@ -319,9 +331,10 @@
       "form" : [
         0,
         0,
+        1,
         1
       ],
-      "games" : 3,
+      "games" : 4,
       "history" : [
         {
           "date" : "2026-11-13T20:30:20Z",
@@ -334,25 +347,29 @@
         {
           "date" : "2026-11-18T21:16:52Z",
           "rating" : 988
+        },
+        {
+          "date" : "2026-11-21T21:02:58Z",
+          "rating" : 1004
         }
       ],
       "id" : "7B0AB26D-1CF8-40F0-B769-780A14D773C1",
       "inactive" : false,
-      "lastPlayed" : "2026-11-18T21:16:52Z",
+      "lastPlayed" : "2026-11-21T21:02:58Z",
       "losses" : 2,
       "name" : "Jan Jirásek",
       "provisional" : true,
-      "rating" : 988,
+      "rating" : 1004,
       "retired" : false,
       "seasons" : [
         {
-          "change" : -12,
-          "games" : 3,
+          "change" : 4,
+          "games" : 4,
           "season" : 20262
         }
       ],
       "startRating" : 1000,
-      "wins" : 1
+      "wins" : 2
     },
     {
       "draws" : 0,
@@ -462,7 +479,7 @@
         0,
         0
       ],
-      "games" : 6,
+      "games" : 7,
       "history" : [
         {
           "date" : "2026-11-18T19:34:21Z",
@@ -487,21 +504,25 @@
         {
           "date" : "2026-11-21T20:15:33Z",
           "rating" : 925
+        },
+        {
+          "date" : "2026-11-21T21:02:58Z",
+          "rating" : 909
         }
       ],
       "id" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
       "inactive" : false,
-      "lastPlayed" : "2026-11-21T20:15:33Z",
-      "losses" : 5,
+      "lastPlayed" : "2026-11-21T21:02:58Z",
+      "losses" : 6,
       "name" : "Michal Čekan",
       "provisional" : false,
       "rank" : 3,
-      "rating" : 925,
+      "rating" : 909,
       "retired" : false,
       "seasons" : [
         {
-          "change" : -75,
-          "games" : 6,
+          "change" : -91,
+          "games" : 7,
           "season" : 20262
         }
       ],
