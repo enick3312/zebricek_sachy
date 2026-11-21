@@ -217,9 +217,21 @@
       "white" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
       "whiteBefore" : 956,
       "whiteChange" : -14
+    },
+    {
+      "black" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
+      "blackBefore" : 942,
+      "blackChange" : -17,
+      "date" : "2026-11-21T20:15:33Z",
+      "rated" : true,
+      "result" : "1-0",
+      "season" : 20262,
+      "white" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
+      "whiteBefore" : 998,
+      "whiteChange" : 17
     }
   ],
-  "generated" : "2026-11-21T19:39:34Z",
+  "generated" : "2026-11-21T20:15:52Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
@@ -228,11 +240,11 @@
       "form" : [
         1,
         1,
-        1,
         0.5,
-        0
+        0,
+        1
       ],
-      "games" : 11,
+      "games" : 12,
       "history" : [
         {
           "date" : "2026-11-13T20:30:20Z",
@@ -277,26 +289,30 @@
         {
           "date" : "2026-11-20T23:08:42Z",
           "rating" : 998
+        },
+        {
+          "date" : "2026-11-21T20:15:33Z",
+          "rating" : 1014
         }
       ],
       "id" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
       "inactive" : false,
-      "lastPlayed" : "2026-11-20T23:08:42Z",
+      "lastPlayed" : "2026-11-21T20:15:33Z",
       "losses" : 5,
       "name" : "Tomáš Gabriel",
       "provisional" : false,
       "rank" : 2,
-      "rating" : 998,
+      "rating" : 1014,
       "retired" : false,
       "seasons" : [
         {
-          "change" : -2,
-          "games" : 11,
+          "change" : 14,
+          "games" : 12,
           "season" : 20262
         }
       ],
       "startRating" : 1000,
-      "wins" : 5
+      "wins" : 6
     },
     {
       "draws" : 0,
@@ -440,13 +456,13 @@
     {
       "draws" : 0,
       "form" : [
-        1,
+        0,
         0,
         0,
         0,
         0
       ],
-      "games" : 5,
+      "games" : 6,
       "history" : [
         {
           "date" : "2026-11-18T19:34:21Z",
@@ -467,21 +483,25 @@
         {
           "date" : "2026-11-21T19:39:00Z",
           "rating" : 942
+        },
+        {
+          "date" : "2026-11-21T20:15:33Z",
+          "rating" : 925
         }
       ],
       "id" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
       "inactive" : false,
-      "lastPlayed" : "2026-11-21T19:39:00Z",
-      "losses" : 4,
+      "lastPlayed" : "2026-11-21T20:15:33Z",
+      "losses" : 5,
       "name" : "Michal Čekan",
       "provisional" : false,
       "rank" : 3,
-      "rating" : 942,
+      "rating" : 925,
       "retired" : false,
       "seasons" : [
         {
-          "change" : -58,
-          "games" : 5,
+          "change" : -75,
+          "games" : 6,
           "season" : 20262
         }
       ],
