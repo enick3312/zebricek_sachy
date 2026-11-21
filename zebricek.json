@@ -205,9 +205,21 @@
       "white" : "EE9C959E-9AC9-436C-AB18-D693F6CBCBF8",
       "whiteBefore" : 1003,
       "whiteChange" : -20
+    },
+    {
+      "black" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
+      "blackBefore" : 1067,
+      "blackChange" : 14,
+      "date" : "2026-11-21T19:39:00Z",
+      "rated" : true,
+      "result" : "0-1",
+      "season" : 20262,
+      "white" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
+      "whiteBefore" : 956,
+      "whiteChange" : -14
     }
   ],
-  "generated" : "2026-11-20T23:55:57Z",
+  "generated" : "2026-11-21T19:39:34Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
@@ -370,12 +382,12 @@
       "draws" : 0,
       "form" : [
         1,
-        1,
         0,
+        1,
         1,
         1
       ],
-      "games" : 6,
+      "games" : 7,
       "history" : [
         {
           "date" : "2026-11-13T22:15:23Z",
@@ -400,26 +412,30 @@
         {
           "date" : "2026-11-20T23:25:38Z",
           "rating" : 1067
+        },
+        {
+          "date" : "2026-11-21T19:39:00Z",
+          "rating" : 1081
         }
       ],
       "id" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
       "inactive" : false,
-      "lastPlayed" : "2026-11-20T23:25:38Z",
+      "lastPlayed" : "2026-11-21T19:39:00Z",
       "losses" : 1,
       "name" : "Mikita Elinov",
       "provisional" : false,
       "rank" : 1,
-      "rating" : 1067,
+      "rating" : 1081,
       "retired" : false,
       "seasons" : [
         {
-          "change" : 67,
-          "games" : 6,
+          "change" : 81,
+          "games" : 7,
           "season" : 20262
         }
       ],
       "startRating" : 1000,
-      "wins" : 5
+      "wins" : 6
     },
     {
       "draws" : 0,
@@ -427,9 +443,10 @@
         1,
         0,
         0,
+        0,
         0
       ],
-      "games" : 4,
+      "games" : 5,
       "history" : [
         {
           "date" : "2026-11-18T19:34:21Z",
@@ -446,20 +463,25 @@
         {
           "date" : "2026-11-18T20:54:09Z",
           "rating" : 956
+        },
+        {
+          "date" : "2026-11-21T19:39:00Z",
+          "rating" : 942
         }
       ],
       "id" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
       "inactive" : false,
-      "lastPlayed" : "2026-11-18T20:54:09Z",
-      "losses" : 3,
+      "lastPlayed" : "2026-11-21T19:39:00Z",
+      "losses" : 4,
       "name" : "Michal Čekan",
-      "provisional" : true,
-      "rating" : 956,
+      "provisional" : false,
+      "rank" : 3,
+      "rating" : 942,
       "retired" : false,
       "seasons" : [
         {
-          "change" : -44,
-          "games" : 4,
+          "change" : -58,
+          "games" : 5,
           "season" : 20262
         }
       ],
