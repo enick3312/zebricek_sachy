@@ -2,7 +2,7 @@
 <html lang="cs">
 <head>
 <meta charset="utf-8">
-<meta name="ect-template" content="5">
+<meta name="ect-template" content="6">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Šachový žebříček</title>
 <meta name="description" content="Otevřený hospodský šachový žebříček – podzimní sezóna 2026">
@@ -41,6 +41,15 @@
   nav { overflow-x: auto; scrollbar-width: none; }
   nav::-webkit-scrollbar { display: none; }
   nav a { flex-shrink: 0; white-space: nowrap; }
+  .subtabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .subtabs a { padding: 5px 12px; border-radius: 999px; text-decoration: none; color: var(--muted); font-weight: 600;
+               font-size: .88rem; border: 1px solid var(--line); }
+  .subtabs a.on { color: var(--ink); border-color: var(--season); background: color-mix(in srgb, var(--season) 16%, transparent); }
+  .tag.owl { background: #2b2350; color: #c9b8ff; }
+  .tag.lark { background: #4a3a12; color: #ffd98a; }
+  .nightbar { position: relative; height: 8px; border-radius: 999px; background: linear-gradient(90deg, #f5c542, #e0702a 45%, #3b2a6b); }
+  .nightbar i { position: absolute; top: -3px; width: 12px; height: 12px; border-radius: 50%; background: var(--ink);
+                border: 2px solid var(--card); }
   h2.hist { font-size: 1.05rem; margin: 22px 2px 10px; color: var(--muted); }
   nav a { padding: 7px 14px; border-radius: 999px; text-decoration: none; color: var(--ink); font-weight: 600; font-size: .95rem; }
   nav a.on { background: var(--season); color: #fff; }
@@ -263,7 +272,7 @@ function viewTable() {
       <td class="hide-sm muted" ${p.lastPlayed ? `title="${dateLong(new Date(p.lastPlayed))} v ${timeOf(new Date(p.lastPlayed))}"` : ""}>${relDay(p.lastPlayed)}</td></tr>`;
   }).join("");
   const hidden = D.players.filter(p => p.inactive || p.retired).length;
-  return `<div class="controls">
+  return SUBTABS("zebricek") + `<div class="controls">
       <span>Seřazeno podle Elo · do pořadí se počítají hráči s nejméně ${D.settings.provisionalGames} ${D.settings.provisionalGames === 1 ? "partií" : "partiemi"}</span>
       ${hidden ? `<label><input type="checkbox" id="showAll" ${showAll ? "checked" : ""}> zobrazit neaktivní (${hidden})</label>` : ""}
     </div>
@@ -272,6 +281,36 @@ function viewTable() {
       <th class="n hide-sm">V–R–P</th><th class="hide-sm">Forma</th><th class="hide-sm">Naposledy</th></tr></thead><tbody>${body}</tbody></table>`
       : `<p class="muted" style="padding:10px">Zatím žádní hráči.</p>`}
     </div>`;
+}
+
+// ---------- Sovy a skřivani: ranking by the average time of day a player's games were played ----------
+// Žebříček has two sub-tabs: the Elo ranking and this one.
+const SUBTABS = on => `<div class="subtabs"><a href="#zebricek" class="${on === "zebricek" ? "on" : ""}">Elo</a>
+  <a href="#sovy" class="${on === "sovy" ? "on" : ""}">🦉 Sovy a skřivani 🐦</a></div>`;
+
+function viewOwls() {
+  // Minutes after 6:00, so a game at 0:30 counts as later than one at 23:30 (the pub evening runs past midnight).
+  const mins = iso => { const d = new Date(iso); return (d.getHours() * 60 + d.getMinutes() - 360 + 1440) % 1440; };
+  const clock = m => { const t = Math.round(m + 360) % 1440; return `${Math.floor(t / 60)}:${String(t % 60).padStart(2, "0")}`; };
+  const rows = D.players.filter(p => !p.retired).map(p => {
+    const times = D.games.filter(g => g.white === p.id || g.black === p.id).map(g => mins(g.date));
+    return { p, n: times.length, avg: times.reduce((a, b) => a + b, 0) / Math.max(1, times.length) };
+  }).filter(r => r.n > 0).sort((a, b) => b.avg - a.avg || b.n - a.n || a.p.name.localeCompare(b.p.name, "cs"));
+  if (!rows.length) return SUBTABS("sovy") + `<div class="card muted">Zatím se nehrálo.</div>`;
+  const lo = rows[rows.length - 1].avg, hi = rows[0].avg;
+  const body = rows.map((r, i) => {
+    const tag = i === 0 ? `<span class="tag owl">🦉 sova</span>`
+      : i === rows.length - 1 ? `<span class="tag lark">🐦 skřivan</span>` : "";
+    const pos = hi > lo ? (r.avg - lo) / (hi - lo) : 1;
+    return `<tr class="click" onclick="location.hash='hrac/${encodeURIComponent(r.p.id)}'">
+      <td class="rank">${i + 1}</td><td>${esc(r.p.name)}${tag}</td>
+      <td class="n elo">${clock(r.avg)}</td><td class="n">${r.n}</td>
+      <td class="hide-sm" style="width:34%"><div class="nightbar"><i style="left:calc(${(pos * 100).toFixed(1)}% - 6px)"></i></div></td></tr>`;
+  }).join("");
+  return SUBTABS("sovy") + `<div class="controls"><span>Seřazeno podle průměrného času partií · nahoře sova (hraje nejpozději),
+      dole skřivan (nejdříve) · partie po půlnoci patří k předchozímu večeru</span></div>
+    <div class="card" style="padding:4px 6px"><table><thead><tr><th>#</th><th>Hráč</th><th class="n">Průměrný čas</th>
+      <th class="n">Partie</th><th class="hide-sm">${clock(lo)} → ${clock(hi)}</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
 // ---------- Novinky: "Poslední události" (the latest game evening) and the history of every earlier evening ----------
@@ -584,12 +623,12 @@ function startReveal() {
 
 function render() {
   const h = decodeURIComponent(location.hash.replace(/^#/, ""));
-  const v = h.startsWith("hrac/") ? "hrac" : (["novinky", "partie", "vyvoj", "sezony"].includes(h) ? h : "zebricek");
+  const v = h.startsWith("hrac/") ? "hrac" : (["novinky", "partie", "vyvoj", "sezony", "sovy"].includes(h) ? h : "zebricek");
   // The graph draws itself in when you open the tab (not when you tap a name or turn the phone).
   trendAnimate = v === "vyvoj" && lastView !== "vyvoj";
   if (v !== lastView) { lastView = v; countView(v); }
-  document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.v === v));
-  $("#main").innerHTML = v === "hrac" ? viewPlayer(h.slice(5)) : v === "novinky" ? viewNews() : v === "partie" ? viewGames() : v === "vyvoj" ? viewTrend()
+  document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.v === (v === "sovy" ? "zebricek" : v)));
+  $("#main").innerHTML = v === "hrac" ? viewPlayer(h.slice(5)) : v === "novinky" ? viewNews() : v === "sovy" ? viewOwls() : v === "partie" ? viewGames() : v === "vyvoj" ? viewTrend()
     : v === "sezony" ? viewSeasons() : viewTable();
   startReveal();
   document.querySelectorAll("#legend button").forEach(b => b.onclick = () => {
