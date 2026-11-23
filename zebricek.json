@@ -133,142 +133,22 @@
       "white" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
       "whiteBefore" : 1057,
       "whiteChange" : -25
-    },
-    {
-      "black" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
-      "blackBefore" : 1000,
-      "blackChange" : 1,
-      "date" : "2026-11-20T21:01:11Z",
-      "rated" : true,
-      "result" : "½-½",
-      "season" : 20262,
-      "white" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
-      "whiteBefore" : 1021,
-      "whiteChange" : -1
-    },
-    {
-      "black" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
-      "blackBefore" : 1001,
-      "blackChange" : -18,
-      "date" : "2026-11-20T21:37:53Z",
-      "rated" : true,
-      "result" : "1-0",
-      "season" : 20262,
-      "white" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
-      "whiteBefore" : 1032,
-      "whiteChange" : 18
-    },
-    {
-      "black" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
-      "blackBefore" : 983,
-      "blackChange" : 21,
-      "date" : "2026-11-20T22:43:26Z",
-      "rated" : true,
-      "result" : "0-1",
-      "season" : 20262,
-      "white" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
-      "whiteBefore" : 1000,
-      "whiteChange" : -21
-    },
-    {
-      "black" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
-      "blackBefore" : 1020,
-      "blackChange" : -22,
-      "date" : "2026-11-20T23:08:42Z",
-      "rated" : true,
-      "result" : "1-0",
-      "season" : 20262,
-      "white" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
-      "whiteBefore" : 979,
-      "whiteChange" : 22
-    },
-    {
-      "black" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
-      "blackBefore" : 1050,
-      "blackChange" : 17,
-      "date" : "2026-11-20T23:25:38Z",
-      "rated" : true,
-      "result" : "0-1",
-      "season" : 20262,
-      "white" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
-      "whiteBefore" : 1004,
-      "whiteChange" : -17
-    },
-    {
-      "black" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
-      "blackBefore" : 1001,
-      "blackChange" : 20,
-      "date" : "2026-11-20T23:55:25Z",
-      "rated" : true,
-      "result" : "0-1",
-      "season" : 20262,
-      "white" : "EE9C959E-9AC9-436C-AB18-D693F6CBCBF8",
-      "whiteBefore" : 1003,
-      "whiteChange" : -20
-    },
-    {
-      "black" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
-      "blackBefore" : 1067,
-      "blackChange" : 14,
-      "date" : "2026-11-21T19:39:00Z",
-      "rated" : true,
-      "result" : "0-1",
-      "season" : 20262,
-      "white" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
-      "whiteBefore" : 956,
-      "whiteChange" : -14
-    },
-    {
-      "black" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
-      "blackBefore" : 942,
-      "blackChange" : -17,
-      "date" : "2026-11-21T20:15:33Z",
-      "rated" : true,
-      "result" : "1-0",
-      "season" : 20262,
-      "white" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
-      "whiteBefore" : 998,
-      "whiteChange" : 17
-    },
-    {
-      "black" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
-      "blackBefore" : 925,
-      "blackChange" : -16,
-      "date" : "2026-11-21T21:02:58Z",
-      "rated" : true,
-      "result" : "1-0",
-      "season" : 20262,
-      "white" : "7B0AB26D-1CF8-40F0-B769-780A14D773C1",
-      "whiteBefore" : 988,
-      "whiteChange" : 16
-    },
-    {
-      "black" : "7B0AB26D-1CF8-40F0-B769-780A14D773C1",
-      "blackBefore" : 1004,
-      "blackChange" : -16,
-      "date" : "2026-11-21T21:52:21Z",
-      "rated" : true,
-      "result" : "1-0",
-      "season" : 20262,
-      "white" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
-      "whiteBefore" : 1081,
-      "whiteChange" : 16
     }
   ],
-  "generated" : "2026-11-21T21:56:11Z",
+  "generated" : "2026-11-19T23:19:56Z",
   "location" : "",
   "name" : "Pub Ladder",
   "players" : [
     {
-      "draws" : 1,
+      "draws" : 0,
       "form" : [
-        1,
-        1,
-        0.5,
         0,
+        0,
+        1,
+        1,
         1
       ],
-      "games" : 12,
+      "games" : 9,
       "history" : [
         {
           "date" : "2026-11-13T20:30:20Z",
@@ -305,49 +185,35 @@
         {
           "date" : "2026-11-18T20:54:09Z",
           "rating" : 1021
-        },
-        {
-          "date" : "2026-11-20T21:01:11Z",
-          "rating" : 1020
-        },
-        {
-          "date" : "2026-11-20T23:08:42Z",
-          "rating" : 998
-        },
-        {
-          "date" : "2026-11-21T20:15:33Z",
-          "rating" : 1014
         }
       ],
       "id" : "11233BDD-DCDD-4A47-B5B7-53679DB7C5FF",
       "inactive" : false,
-      "lastPlayed" : "2026-11-21T20:15:33Z",
-      "losses" : 5,
+      "lastPlayed" : "2026-11-18T20:54:09Z",
+      "losses" : 4,
       "name" : "Tomáš Gabriel",
       "provisional" : false,
-      "rank" : 2,
-      "rating" : 1014,
+      "rank" : 1,
+      "rating" : 1021,
       "retired" : false,
       "seasons" : [
         {
-          "change" : 14,
-          "games" : 12,
+          "change" : 21,
+          "games" : 9,
           "season" : 20262
         }
       ],
       "startRating" : 1000,
-      "wins" : 6
+      "wins" : 5
     },
     {
       "draws" : 0,
       "form" : [
         0,
         0,
-        1,
-        1,
-        0
+        1
       ],
-      "games" : 5,
+      "games" : 3,
       "history" : [
         {
           "date" : "2026-11-13T20:30:20Z",
@@ -360,68 +226,19 @@
         {
           "date" : "2026-11-18T21:16:52Z",
           "rating" : 988
-        },
-        {
-          "date" : "2026-11-21T21:02:58Z",
-          "rating" : 1004
-        },
-        {
-          "date" : "2026-11-21T21:52:21Z",
-          "rating" : 988
         }
       ],
       "id" : "7B0AB26D-1CF8-40F0-B769-780A14D773C1",
       "inactive" : false,
-      "lastPlayed" : "2026-11-21T21:52:21Z",
-      "losses" : 3,
+      "lastPlayed" : "2026-11-18T21:16:52Z",
+      "losses" : 2,
       "name" : "Jan Jirásek",
-      "provisional" : false,
-      "rank" : 3,
+      "provisional" : true,
       "rating" : 988,
       "retired" : false,
       "seasons" : [
         {
           "change" : -12,
-          "games" : 5,
-          "season" : 20262
-        }
-      ],
-      "startRating" : 1000,
-      "wins" : 2
-    },
-    {
-      "draws" : 0,
-      "form" : [
-        0,
-        1,
-        0
-      ],
-      "games" : 3,
-      "history" : [
-        {
-          "date" : "2026-11-13T22:15:23Z",
-          "rating" : 980
-        },
-        {
-          "date" : "2026-11-13T23:15:21Z",
-          "rating" : 1003
-        },
-        {
-          "date" : "2026-11-20T23:55:25Z",
-          "rating" : 983
-        }
-      ],
-      "id" : "EE9C959E-9AC9-436C-AB18-D693F6CBCBF8",
-      "inactive" : false,
-      "lastPlayed" : "2026-11-20T23:55:25Z",
-      "losses" : 2,
-      "name" : "Tomáš Rottenborn",
-      "provisional" : true,
-      "rating" : 983,
-      "retired" : false,
-      "seasons" : [
-        {
-          "change" : -17,
           "games" : 3,
           "season" : 20262
         }
@@ -433,12 +250,46 @@
       "draws" : 0,
       "form" : [
         0,
-        1,
-        1,
-        1,
         1
       ],
-      "games" : 8,
+      "games" : 2,
+      "history" : [
+        {
+          "date" : "2026-11-13T22:15:23Z",
+          "rating" : 980
+        },
+        {
+          "date" : "2026-11-13T23:15:21Z",
+          "rating" : 1003
+        }
+      ],
+      "id" : "EE9C959E-9AC9-436C-AB18-D693F6CBCBF8",
+      "inactive" : false,
+      "lastPlayed" : "2026-11-13T23:15:21Z",
+      "losses" : 1,
+      "name" : "Tomáš Rottenborn",
+      "provisional" : true,
+      "rating" : 1003,
+      "retired" : false,
+      "seasons" : [
+        {
+          "change" : 3,
+          "games" : 2,
+          "season" : 20262
+        }
+      ],
+      "startRating" : 1000,
+      "wins" : 1
+    },
+    {
+      "draws" : 0,
+      "form" : [
+        1,
+        1,
+        1,
+        0
+      ],
+      "games" : 4,
       "history" : [
         {
           "date" : "2026-11-13T22:15:23Z",
@@ -455,53 +306,35 @@
         {
           "date" : "2026-11-18T21:16:52Z",
           "rating" : 1032
-        },
-        {
-          "date" : "2026-11-20T21:37:53Z",
-          "rating" : 1050
-        },
-        {
-          "date" : "2026-11-20T23:25:38Z",
-          "rating" : 1067
-        },
-        {
-          "date" : "2026-11-21T19:39:00Z",
-          "rating" : 1081
-        },
-        {
-          "date" : "2026-11-21T21:52:21Z",
-          "rating" : 1097
         }
       ],
       "id" : "62AF7DA8-7C4E-4280-B3F1-ACFAD7455694",
       "inactive" : false,
-      "lastPlayed" : "2026-11-21T21:52:21Z",
+      "lastPlayed" : "2026-11-18T21:16:52Z",
       "losses" : 1,
       "name" : "Mikita Elinov",
-      "provisional" : false,
-      "rank" : 1,
-      "rating" : 1097,
+      "provisional" : true,
+      "rating" : 1032,
       "retired" : false,
       "seasons" : [
         {
-          "change" : 97,
-          "games" : 8,
+          "change" : 32,
+          "games" : 4,
           "season" : 20262
         }
       ],
       "startRating" : 1000,
-      "wins" : 7
+      "wins" : 3
     },
     {
       "draws" : 0,
       "form" : [
-        0,
-        0,
+        1,
         0,
         0,
         0
       ],
-      "games" : 7,
+      "games" : 4,
       "history" : [
         {
           "date" : "2026-11-18T19:34:21Z",
@@ -518,123 +351,25 @@
         {
           "date" : "2026-11-18T20:54:09Z",
           "rating" : 956
-        },
-        {
-          "date" : "2026-11-21T19:39:00Z",
-          "rating" : 942
-        },
-        {
-          "date" : "2026-11-21T20:15:33Z",
-          "rating" : 925
-        },
-        {
-          "date" : "2026-11-21T21:02:58Z",
-          "rating" : 909
         }
       ],
       "id" : "4F348878-5F7C-44B5-8493-4F95775B53B1",
       "inactive" : false,
-      "lastPlayed" : "2026-11-21T21:02:58Z",
-      "losses" : 6,
+      "lastPlayed" : "2026-11-18T20:54:09Z",
+      "losses" : 3,
       "name" : "Michal Čekan",
-      "provisional" : false,
-      "rank" : 4,
-      "rating" : 909,
-      "retired" : false,
-      "seasons" : [
-        {
-          "change" : -91,
-          "games" : 7,
-          "season" : 20262
-        }
-      ],
-      "startRating" : 1000,
-      "wins" : 1
-    },
-    {
-      "draws" : 1,
-      "form" : [
-        0.5,
-        0,
-        1,
-        0
-      ],
-      "games" : 4,
-      "history" : [
-        {
-          "date" : "2026-11-20T21:01:11Z",
-          "rating" : 1001
-        },
-        {
-          "date" : "2026-11-20T21:37:53Z",
-          "rating" : 983
-        },
-        {
-          "date" : "2026-11-20T22:43:26Z",
-          "rating" : 1004
-        },
-        {
-          "date" : "2026-11-20T23:25:38Z",
-          "rating" : 987
-        }
-      ],
-      "id" : "C68C07AE-0252-4744-BE7D-3717C14D7C1F",
-      "inactive" : false,
-      "lastPlayed" : "2026-11-20T23:25:38Z",
-      "losses" : 2,
-      "name" : "Petr Hájek",
       "provisional" : true,
-      "rating" : 987,
+      "rating" : 956,
       "retired" : false,
       "seasons" : [
         {
-          "change" : -13,
+          "change" : -44,
           "games" : 4,
           "season" : 20262
         }
       ],
       "startRating" : 1000,
       "wins" : 1
-    },
-    {
-      "draws" : 0,
-      "form" : [
-        0,
-        1,
-        1
-      ],
-      "games" : 3,
-      "history" : [
-        {
-          "date" : "2026-11-20T22:43:26Z",
-          "rating" : 979
-        },
-        {
-          "date" : "2026-11-20T23:08:42Z",
-          "rating" : 1001
-        },
-        {
-          "date" : "2026-11-20T23:55:25Z",
-          "rating" : 1021
-        }
-      ],
-      "id" : "BD886FE5-C021-4C5E-B8A6-F3CD2A552B16",
-      "inactive" : false,
-      "lastPlayed" : "2026-11-20T23:55:25Z",
-      "losses" : 1,
-      "name" : "Jiří Baudis",
-      "provisional" : true,
-      "rating" : 1021,
-      "retired" : false,
-      "seasons" : [
-        {
-          "change" : 21,
-          "games" : 3,
-          "season" : 20262
-        }
-      ],
-      "startRating" : 1000,
-      "wins" : 2
     }
   ],
   "seasonMode" : "quarterly",
